@@ -1,0 +1,95 @@
+{
+  "projectType": "sdk-library",
+  "projectName": "MetaMap Android SDK",
+  "projectDescription": "Android SDK for identity verification and document authentication flows with MetaMap",
+  "theme": "palm",
+  "primaryColor": "#444444",
+  "lightColor": "#e78465",
+  "darkColor": "#65cff4",
+  "navigation": {
+    "tabs": [
+      {
+        "tab": "Documentation",
+        "groups": [
+          {
+            "group": "Get Started",
+            "pages": [
+              "introduction",
+              "installation",
+              "quickstart"
+            ]
+          },
+          {
+            "group": "Integration Guides",
+            "pages": [
+              "guides/basic-integration",
+              "guides/metamap-button",
+              "guides/result-handling",
+              "guides/metadata"
+            ]
+          },
+          {
+            "group": "Customization",
+            "pages": [
+              "customization/ui-colors",
+              "customization/fonts",
+              "customization/language"
+            ]
+          },
+          {
+            "group": "Advanced Features",
+            "pages": [
+              "advanced/face-match",
+              "advanced/smart-capture",
+              "advanced/encryption",
+              "advanced/cooldown"
+            ]
+          }
+        ]
+      },
+      {
+        "tab": "API Reference",
+        "groups": [
+          {
+            "group": "Core Classes",
+            "pages": [
+              "api/metamap-sdk",
+              "api/metamap-button",
+              "api/metadata"
+            ]
+          },
+          {
+            "group": "Configuration",
+            "pages": [
+              "api/ui-config",
+              "api/font-config"
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "keyFeatures": [
+    "Identity verification flows",
+    "Document authentication",
+    "Face matching and biometric verification",
+    "Smart capture with ML-powered document detection",
+    "Customizable UI with colors and fonts",
+    "Multi-language support",
+    "Encryption configuration support",
+    "Activity Result API integration"
+  ],
+  "publicApiSurface": [
+    "MetamapSdk.startFlow()",
+    "MetamapButton.setParams()",
+    "Metadata.Builder",
+    "UIConfig.Builder",
+    "FontConfig",
+    "MetamapLanguage",
+    "MetamapSdk.enableSmartCapture()",
+    "MetamapSdk.disableSmartCapture()",
+    "MetamapSdk.ARG_VERIFICATION_ID",
+    "MetamapSdk.ARG_IDENTITY_ID",
+    "MetamapSdk.DEFAULT_REQUEST_CODE"
+  ]
+}
