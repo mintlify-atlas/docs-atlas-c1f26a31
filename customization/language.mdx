@@ -1,0 +1,182 @@
+---
+title: "Language Configuration"
+description: "Set a fixed language for the MetaMap SDK or enable multi-language support"
+---
+
+The MetaMap SDK supports multiple languages and allows you to either set a fixed language for the verification flow or let users choose their preferred language.
+
+## Overview
+
+You can configure the SDK language behavior in two ways:
+
+1. **Fixed Language** - Lock the SDK to a specific language
+2. **Multi-language** - Allow users to select from available languages (default)
+
+## Setting a Fixed Language
+
+To force the SDK to use a specific language regardless of device settings or user preference:
+
+<Steps>
+  <Step title="Choose a Language">
+    Select from the available `MetamapLanguage` enum values:
+    
+    ```java
+    MetamapLanguage.SPANISH
+    ```
+  </Step>
+
+  <Step title="Configure UIConfig">
+    Set the fixed language using `UIConfig.Builder`:
+    
+    ```java
+    UIConfig uiConfig = new UIConfig.Builder()
+            .fixedLanguage(MetamapLanguage.SPANISH)
+            .build();
+    ```
+  </Step>
+
+  <Step title="Apply to MetaMap">
+    Pass the configuration through `Metadata`:
+    
+    ```java
+    Metadata metadata = new Metadata.Builder()
+            .uiConfig(uiConfig)
+            .build();
+    
+    btn.setParams(this, "YOUR_CLIENT_ID", "YOUR_FLOW_ID", metadata);
+    ```
+  </Step>
+</Steps>
+
+## Complete Example
+
+```java
+package com.example.yourapp;
+
+import android.os.Bundle;
+import androidx.appcompat.app.AppCompatActivity;
+import com.metamap.metamap_sdk.Metadata;
+import com.metamap.metamap_sdk.MetamapButton;
+import com.metamap.metamap_sdk.metadata.MetamapLanguage;
+import com.metamap.metamap_sdk.metadata.UIConfig;
+
+public class LanguageConfigActivity extends AppCompatActivity {
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_metamap_button);
+
+        MetamapButton btn = findViewById(R.id.metamapButton);
+        
+        UIConfig uiConfig = new UIConfig.Builder()
+                .fixedLanguage(MetamapLanguage.SPANISH)
+                .build();
+        
+        Metadata metadata = new Metadata.Builder()
+                .uiConfig(uiConfig)
+                .build();
+        
+        btn.setParams(
+                this,
+                "YOUR_CLIENT_ID",
+                "YOUR_FLOW_ID",
+                metadata
+        );
+    }
+}
+```
+
+## Available Languages
+
+The SDK supports multiple languages through the `MetamapLanguage` enum. Common values include:
+
+- `MetamapLanguage.ENGLISH`
+- `MetamapLanguage.SPANISH`
+- `MetamapLanguage.FRENCH`
+- `MetamapLanguage.GERMAN`
+- `MetamapLanguage.PORTUGUESE`
+- `MetamapLanguage.ITALIAN`
+- And more...
+
+<Note>
+  Refer to the `MetamapLanguage` enum in the SDK for the complete list of supported languages.
+</Note>
+
+## Multi-language Support
+
+By default, if you don't set a fixed language, the SDK allows users to select their preferred language from a language picker. This provides the best user experience for international audiences.
+
+To enable multi-language support, simply don't set the `fixedLanguage` parameter:
+
+```java
+// No language configuration - multi-language enabled by default
+UIConfig uiConfig = new UIConfig.Builder()
+        .accentColor(accentColor)  // Other customizations
+        .build();
+
+Metadata metadata = new Metadata.Builder()
+        .uiConfig(uiConfig)
+        .build();
+```
+
+## Combining with Other Customizations
+
+You can combine language configuration with other UI customizations:
+
+```java
+import androidx.core.content.ContextCompat;
+import com.metamap.metamap_sdk.metadata.FontConfig;
+
+// Set up colors
+int accentColor = ContextCompat.getColor(this, R.color.colorAccent);
+
+// Set up fonts
+FontConfig fontConfig = new FontConfig(
+        "my_font_regular.ttf",
+        "my_font_bold.ttf"
+);
+
+// Combine with fixed language
+UIConfig uiConfig = new UIConfig.Builder()
+        .fixedLanguage(MetamapLanguage.SPANISH)
+        .fontConfig(fontConfig)
+        .accentColor(accentColor)
+        .build();
+
+Metadata metadata = new Metadata.Builder()
+        .uiConfig(uiConfig)
+        .build();
+```
+
+## Configuration Options
+
+<ParamField path="fixedLanguage" type="MetamapLanguage">
+  Sets a specific language for the SDK. When set, users cannot change the language and the language picker is hidden.
+</ParamField>
+
+<Note>
+  When using a fixed language, ensure that your target audience speaks that language. For apps with international users, consider using multi-language support instead.
+</Note>
+
+## Dynamic Language Selection
+
+If you want to set the language based on user preferences or device settings:
+
+```java
+// Get device language or user preference
+String deviceLanguage = Locale.getDefault().getLanguage();
+
+MetamapLanguage selectedLanguage;
+if (deviceLanguage.equals("es")) {
+    selectedLanguage = MetamapLanguage.SPANISH;
+} else if (deviceLanguage.equals("fr")) {
+    selectedLanguage = MetamapLanguage.FRENCH;
+} else {
+    selectedLanguage = MetamapLanguage.ENGLISH;
+}
+
+UIConfig uiConfig = new UIConfig.Builder()
+        .fixedLanguage(selectedLanguage)
+        .build();
+```

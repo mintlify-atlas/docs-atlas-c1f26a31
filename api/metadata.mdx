@@ -1,0 +1,268 @@
+---
+title: "Metadata"
+description: "Configuration class for passing additional data, identity information, and UI customization to verification flows"
+---
+
+## Overview
+
+`Metadata` is a configuration class that allows you to pass additional data, identity information, and UI customization settings to the MetaMap verification flow. It uses the Builder pattern for construction.
+
+## Metadata Class
+
+### Usage
+
+```java
+Metadata metadata = new Metadata.Builder()
+    .additionalData("key", "value")
+    .identityId("USER_IDENTITY_ID")
+    .uiConfig(uiConfig)
+    .build();
+```
+
+## Metadata.Builder
+
+The `Metadata.Builder` class provides methods to configure metadata before building the final `Metadata` object.
+
+### Methods
+
+#### additionalData
+
+Adds custom key-value data to be passed with the verification flow.
+
+```java
+builder.additionalData(String key, Object value)
+```
+
+<ParamField path="key" type="String" required>
+  The key for the additional data field
+</ParamField>
+
+<ParamField path="value" type="Object" required>
+  The value for the additional data field (can be String, int, boolean, etc.)
+</ParamField>
+
+<Info>
+  This method can be called multiple times to add multiple key-value pairs.
+</Info>
+
+#### Example
+
+```java
+Metadata metadata = new Metadata.Builder()
+    .additionalData("userId", "qwfguweo")
+    .additionalData("type", 2)
+    .additionalData("phoneNumber", "USER_PHONE_NUMBER")
+    .additionalData("email", "USER_EMAIL")
+    .additionalData("documentNumber", "USER_DOCUMENT_NUMBER")
+    .build();
+```
+
+#### identityId
+
+Sets the identity ID for face match verification or re-verification flows.
+
+```java
+builder.identityId(String identityId)
+```
+
+<ParamField path="identityId" type="String" required>
+  The identity ID of an existing user for face match verification
+</ParamField>
+
+<Note>
+  Use this method when you need to perform face match verification against an existing identity in the MetaMap system.
+</Note>
+
+#### Example
+
+```java
+Metadata metadata = new Metadata.Builder()
+    .identityId("USER_IDENTITY_ID")
+    .build();
+```
+
+#### uiConfig
+
+Sets UI configuration for customizing the appearance and behavior of the verification flow.
+
+```java
+builder.uiConfig(UIConfig uiConfig)
+```
+
+<ParamField path="uiConfig" type="UIConfig" required>
+  A UIConfig object containing customization settings
+</ParamField>
+
+#### Example
+
+```java
+UIConfig uiConfig = new UIConfig.Builder()
+    .fixedLanguage(MetamapLanguage.SPANISH)
+    .build();
+
+Metadata metadata = new Metadata.Builder()
+    .uiConfig(uiConfig)
+    .build();
+```
+
+#### build
+
+Builds and returns the final `Metadata` object.
+
+```java
+Metadata metadata = builder.build();
+```
+
+## Common Use Cases
+
+### Passing User Context
+
+Pass additional user information with the verification flow:
+
+```java
+Metadata metadata = new Metadata.Builder()
+    .additionalData("userId", "qwfguweo")
+    .additionalData("type", 2)
+    .build();
+
+MetamapSdk.INSTANCE.startFlow(
+    this,
+    "YOUR_CLIENT_ID",
+    "YOUR_FLOW_ID",
+    metadata
+);
+```
+
+### Cooldown Prevention
+
+Pass identifying information to enable cooldown checks:
+
+```java
+Metadata metadata = new Metadata.Builder()
+    .additionalData("phoneNumber", "USER_PHONE_NUMBER")
+    .build();
+
+// OR
+Metadata metadata = new Metadata.Builder()
+    .additionalData("email", "USER_EMAIL")
+    .build();
+
+// OR
+Metadata metadata = new Metadata.Builder()
+    .additionalData("documentNumber", "USER_DOCUMENT_NUMBER")
+    .build();
+```
+
+### Face Match Verification
+
+Perform face match verification against an existing identity:
+
+```java
+Metadata metadata = new Metadata.Builder()
+    .identityId("USER_IDENTITY_ID")
+    .build();
+
+MetamapButton btn = findViewById(R.id.metamapButton);
+btn.setParams(
+    this,
+    "YOUR_CLIENT_ID",
+    "YOUR_FLOW_ID",
+    metadata
+);
+```
+
+### Language Customization
+
+Set a fixed language for the verification flow:
+
+```java
+UIConfig uiConfig = new UIConfig.Builder()
+    .fixedLanguage(MetamapLanguage.SPANISH)
+    .build();
+
+Metadata metadata = new Metadata.Builder()
+    .uiConfig(uiConfig)
+    .build();
+
+MetamapButton btn = findViewById(R.id.metamapButton);
+btn.setParams(this, "YOUR_CLIENT_ID", "YOUR_FLOW_ID", metadata);
+```
+
+### Font Customization
+
+Customize the fonts used in the verification flow:
+
+```java
+FontConfig fontConfig = new FontConfig(
+    "comic_neue.ttf",
+    "comic_neue_bold.ttf"
+);
+
+UIConfig uiConfig = new UIConfig.Builder()
+    .fontConfig(fontConfig)
+    .build();
+
+Metadata metadata = new Metadata.Builder()
+    .uiConfig(uiConfig)
+    .build();
+
+MetamapButton btn = findViewById(R.id.metamapButton);
+btn.setParams(this, "YOUR_CLIENT_ID", "YOUR_FLOW_ID", metadata);
+```
+
+### Color Customization
+
+Customize the colors used in the verification flow:
+
+```java
+int accentColor = ContextCompat.getColor(this, R.color.colorAccent);
+int titleTextColor = ContextCompat.getColor(this, R.color.titleTextColor);
+int subtitleTextColor = ContextCompat.getColor(this, R.color.subtitleTextColor);
+int backgroundColor = ContextCompat.getColor(this, R.color.backgroundColor);
+int lineColor = ContextCompat.getColor(this, R.color.lineColor);
+
+UIConfig uiConfig = new UIConfig.Builder()
+    .accentColor(accentColor)
+    .titleTextColor(titleTextColor)
+    .subtitleTextColor(subtitleTextColor)
+    .backgroundColor(backgroundColor)
+    .lineColor(lineColor)
+    .build();
+
+Metadata metadata = new Metadata.Builder()
+    .uiConfig(uiConfig)
+    .build();
+
+MetamapButton btn = findViewById(R.id.metamapButton);
+btn.setParams(this, "YOUR_CLIENT_ID", "YOUR_FLOW_ID", metadata);
+```
+
+### Combined Configuration
+
+Combine multiple configuration options:
+
+```java
+UIConfig uiConfig = new UIConfig.Builder()
+    .fixedLanguage(MetamapLanguage.SPANISH)
+    .accentColor(accentColor)
+    .build();
+
+Metadata metadata = new Metadata.Builder()
+    .additionalData("userId", "user123")
+    .additionalData("email", "user@example.com")
+    .identityId("existing_identity_id")
+    .uiConfig(uiConfig)
+    .build();
+
+MetamapSdk.INSTANCE.startFlow(
+    this,
+    "YOUR_CLIENT_ID",
+    "YOUR_FLOW_ID",
+    metadata
+);
+```
+
+## Related Classes
+
+- [UIConfig](/api/ui-config) - UI customization configuration
+- [FontConfig](/api/font-config) - Font customization configuration

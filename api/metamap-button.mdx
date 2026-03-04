@@ -1,0 +1,325 @@
+---
+title: "MetamapButton"
+description: "Pre-configured button component that launches verification flows"
+---
+
+## Overview
+
+`MetamapButton` is a ready-to-use UI component that handles launching the MetaMap verification flow when clicked. It simplifies integration by combining the button UI with flow launching logic.
+
+## XML Layout
+
+Add the button to your layout XML:
+
+```xml
+<com.metamap.metamap_sdk.MetamapButton
+    android:id="@+id/metamapButton"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content" />
+```
+
+## Methods
+
+### setParams (Basic)
+
+Configures the button with basic flow parameters.
+
+```java
+button.setParams(
+    Activity activity,
+    String clientId,
+    String flowId
+)
+```
+
+<ParamField path="activity" type="Activity" required>
+  The Android Activity context
+</ParamField>
+
+<ParamField path="clientId" type="String" required>
+  Your MetaMap client ID
+</ParamField>
+
+<ParamField path="flowId" type="String" required>
+  The ID of the verification flow to launch
+</ParamField>
+
+#### Example
+
+```java
+MetamapButton btn = findViewById(R.id.metamapButton);
+btn.setParams(this, "YOUR_CLIENT_ID", "YOUR_FLOW_ID");
+```
+
+### setParams (With Metadata)
+
+Configures the button with additional metadata.
+
+```java
+button.setParams(
+    Activity activity,
+    String clientId,
+    String flowId,
+    Metadata metadata
+)
+```
+
+<ParamField path="activity" type="Activity" required>
+  The Android Activity context
+</ParamField>
+
+<ParamField path="clientId" type="String" required>
+  Your MetaMap client ID
+</ParamField>
+
+<ParamField path="flowId" type="String" required>
+  The ID of the verification flow to launch
+</ParamField>
+
+<ParamField path="metadata" type="Metadata">
+  Metadata configuration including additional data, identity ID, or UI customization
+</ParamField>
+
+#### Example
+
+```java
+MetamapButton btn = findViewById(R.id.metamapButton);
+
+btn.setParams(
+    this,
+    "YOUR_CLIENT_ID",
+    "YOUR_FLOW_ID",
+    new Metadata.Builder()
+        .additionalData("userId", "qwfguweo")
+        .additionalData("type", 2)
+        .build()
+);
+```
+
+### setParams (With Request Code and Configuration)
+
+Configures the button with custom request code and optional configuration ID.
+
+```java
+button.setParams(
+    Activity activity,
+    String clientId,
+    String flowId,
+    Metadata metadata,
+    int requestCode,
+    String configurationId
+)
+```
+
+<ParamField path="activity" type="Activity" required>
+  The Android Activity context
+</ParamField>
+
+<ParamField path="clientId" type="String" required>
+  Your MetaMap client ID
+</ParamField>
+
+<ParamField path="flowId" type="String" required>
+  The ID of the verification flow to launch
+</ParamField>
+
+<ParamField path="metadata" type="Metadata">
+  Metadata configuration (can be null)
+</ParamField>
+
+<ParamField path="requestCode" type="int">
+  Custom request code for onActivityResult. Use `MetamapSdk.DEFAULT_REQUEST_CODE` for default
+</ParamField>
+
+<ParamField path="configurationId" type="String">
+  Optional on-demand configuration ID
+</ParamField>
+
+#### Example with Configuration ID
+
+```java
+MetamapButton btn = findViewById(R.id.metamapButton);
+
+btn.setParams(
+    this,
+    "YOUR_CLIENT_ID",
+    "YOUR_FLOW_ID",
+    null,
+    MetamapSdk.DEFAULT_REQUEST_CODE,
+    "YOUR_CONFIGURATION_ID"
+);
+```
+
+### setParams (With Encryption Configuration)
+
+Configures the button with encryption configuration ID.
+
+```java
+button.setParams(
+    Activity activity,
+    String clientId,
+    String flowId,
+    Metadata metadata,
+    int requestCode,
+    String configurationId,
+    String encryptionConfigurationId
+)
+```
+
+<ParamField path="activity" type="Activity" required>
+  The Android Activity context
+</ParamField>
+
+<ParamField path="clientId" type="String" required>
+  Your MetaMap client ID
+</ParamField>
+
+<ParamField path="flowId" type="String" required>
+  The ID of the verification flow to launch
+</ParamField>
+
+<ParamField path="metadata" type="Metadata">
+  Metadata configuration (can be null)
+</ParamField>
+
+<ParamField path="requestCode" type="int">
+  Custom request code for onActivityResult
+</ParamField>
+
+<ParamField path="configurationId" type="String">
+  Optional on-demand configuration ID (can be null)
+</ParamField>
+
+<ParamField path="encryptionConfigurationId" type="String">
+  Your encryption configuration ID
+</ParamField>
+
+#### Example with Encryption
+
+```java
+MetamapButton btn = findViewById(R.id.metamapButton);
+
+btn.setParams(
+    this,
+    "YOUR_CLIENT_ID",
+    "YOUR_FLOW_ID",
+    null,
+    MetamapSdk.DEFAULT_REQUEST_CODE,
+    null,
+    "YOUR_ENCRYPTION_CONFIGURATION_ID"
+);
+```
+
+### setParams (With ActivityResultLauncher)
+
+Configures the button to use the Activity Result API instead of legacy onActivityResult.
+
+```java
+button.setParams(
+    ActivityResultLauncher<Intent> launcher,
+    Activity activity,
+    String clientId,
+    String flowId
+)
+```
+
+<ParamField path="launcher" type="ActivityResultLauncher<Intent>" required>
+  The ActivityResultLauncher for handling results
+</ParamField>
+
+<ParamField path="activity" type="Activity" required>
+  The Android Activity context
+</ParamField>
+
+<ParamField path="clientId" type="String" required>
+  Your MetaMap client ID
+</ParamField>
+
+<ParamField path="flowId" type="String" required>
+  The ID of the verification flow to launch
+</ParamField>
+
+#### Example with Activity Result API
+
+```java
+private final ActivityResultLauncher<Intent> resultLauncher = registerForActivityResult(
+    new ActivityResultContracts.StartActivityForResult(),
+    result -> {
+        Intent data = result.getData();
+        if (data == null) {
+            Toast.makeText(this, "Verification cancelled", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        if (result.getResultCode() == Activity.RESULT_OK) {
+            String verificationId = data.getStringExtra(MetamapSdk.ARG_VERIFICATION_ID);
+            String identityId = data.getStringExtra(MetamapSdk.ARG_IDENTITY_ID);
+            // Handle success
+        }
+    });
+
+@Override
+protected void onCreate(Bundle savedInstanceState) {
+    super.onCreate(savedInstanceState);
+    setContentView(R.layout.activity_metamap_button);
+
+    MetamapButton btn = findViewById(R.id.metamapButton);
+    btn.setParams(resultLauncher, this, "YOUR_CLIENT_ID", "YOUR_FLOW_ID");
+}
+```
+
+## Use Cases
+
+### Basic Integration
+
+```java
+MetamapButton btn = findViewById(R.id.metamapButton);
+btn.setParams(this, "YOUR_CLIENT_ID", "YOUR_FLOW_ID");
+```
+
+### With Custom User Data
+
+```java
+MetamapButton btn = findViewById(R.id.metamapButton);
+
+btn.setParams(
+    this,
+    "YOUR_CLIENT_ID",
+    "YOUR_FLOW_ID",
+    new Metadata.Builder()
+        .additionalData("phoneNumber", "USER_PHONE_NUMBER")
+        .additionalData("email", "USER_EMAIL")
+        .build()
+);
+```
+
+### Face Match Verification
+
+```java
+MetamapButton btn = findViewById(R.id.metamapButton);
+
+btn.setParams(
+    this,
+    "YOUR_CLIENT_ID",
+    "YOUR_FLOW_ID",
+    new Metadata.Builder()
+        .identityId("USER_IDENTITY_ID")
+        .build()
+);
+```
+
+### With UI Customization
+
+```java
+MetamapButton btn = findViewById(R.id.metamapButton);
+
+UIConfig uiConfig = new UIConfig.Builder()
+    .fixedLanguage(MetamapLanguage.SPANISH)
+    .accentColor(accentColor)
+    .build();
+
+Metadata metadata = new Metadata.Builder()
+    .uiConfig(uiConfig)
+    .build();
+
+btn.setParams(this, "YOUR_CLIENT_ID", "YOUR_FLOW_ID", metadata);
+```

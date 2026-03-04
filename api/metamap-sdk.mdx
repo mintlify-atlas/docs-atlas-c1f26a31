@@ -1,0 +1,182 @@
+---
+title: "MetamapSdk"
+description: "Core SDK class for launching verification flows and configuring Smart Capture"
+---
+
+## Overview
+
+`MetamapSdk` is the main class for integrating MetaMap verification flows into your Android application. It provides methods to start verification flows programmatically and configure Smart Capture functionality.
+
+## Instance
+
+The SDK is accessed via a singleton instance:
+
+```java
+MetamapSdk.INSTANCE
+```
+
+## Methods
+
+### startFlow
+
+Launches the MetaMap verification flow.
+
+```java
+MetamapSdk.INSTANCE.startFlow(
+    Activity activity,
+    String clientId,
+    String flowId,
+    Metadata metadata
+)
+```
+
+<ParamField path="activity" type="Activity" required>
+  The Android Activity from which to launch the verification flow
+</ParamField>
+
+<ParamField path="clientId" type="String" required>
+  Your MetaMap client ID
+</ParamField>
+
+<ParamField path="flowId" type="String" required>
+  The ID of the verification flow to launch
+</ParamField>
+
+<ParamField path="metadata" type="Metadata">
+  Optional metadata configuration for the flow (additional data, identity ID, UI customization)
+</ParamField>
+
+#### Example
+
+```java
+MetamapSdk.INSTANCE.startFlow(
+    this,
+    "YOUR_CLIENT_ID",
+    "YOUR_FLOW_ID",
+    new Metadata.Builder()
+        .additionalData("userId", "qwfguweo")
+        .additionalData("type", 2)
+        .build()
+);
+```
+
+### enableSmartCapture
+
+Manually enables Smart Capture functionality.
+
+```java
+MetamapSdk.INSTANCE.enableSmartCapture()
+```
+
+<Note>
+  Smart Capture is automatically enabled when the dependency is added. Use this method only if you need to enable it manually after disabling.
+</Note>
+
+### disableSmartCapture
+
+Manually disables Smart Capture functionality.
+
+```java
+MetamapSdk.INSTANCE.disableSmartCapture()
+```
+
+## Constants
+
+### DEFAULT_REQUEST_CODE
+
+The default request code used when launching the verification flow via `startActivityForResult`.
+
+```java
+int requestCode = MetamapSdk.DEFAULT_REQUEST_CODE;
+```
+
+#### Usage Example
+
+```java
+@Override
+protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+    if (requestCode == MetamapSdk.DEFAULT_REQUEST_CODE) {
+        if (resultCode == Activity.RESULT_OK && data != null) {
+            String verificationId = data.getStringExtra(MetamapSdk.ARG_VERIFICATION_ID);
+            String identityId = data.getStringExtra(MetamapSdk.ARG_IDENTITY_ID);
+            // Handle success
+        }
+    }
+}
+```
+
+### ARG_VERIFICATION_ID
+
+Intent extra key for retrieving the verification ID from the result.
+
+```java
+String verificationId = data.getStringExtra(MetamapSdk.ARG_VERIFICATION_ID);
+```
+
+### ARG_IDENTITY_ID
+
+Intent extra key for retrieving the identity ID from the result.
+
+```java
+String identityId = data.getStringExtra(MetamapSdk.ARG_IDENTITY_ID);
+```
+
+## Handling Results
+
+### Using onActivityResult (Legacy)
+
+```java
+@Override
+protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+    if (requestCode == MetamapSdk.DEFAULT_REQUEST_CODE) {
+        if (resultCode == Activity.RESULT_OK && data != null) {
+            Toast.makeText(
+                this,
+                "Verification success! " +
+                    "VerificationId:" + data.getStringExtra(MetamapSdk.ARG_VERIFICATION_ID) +
+                    "IdentityId: " + data.getStringExtra(MetamapSdk.ARG_IDENTITY_ID),
+                Toast.LENGTH_SHORT
+            ).show();
+        } else {
+            // Handle cancellation or error
+            if (data != null) {
+                String verificationId = data.getStringExtra(MetamapSdk.ARG_VERIFICATION_ID);
+                String identityId = data.getStringExtra(MetamapSdk.ARG_IDENTITY_ID);
+            }
+        }
+    } else {
+        super.onActivityResult(requestCode, resultCode, data);
+    }
+}
+```
+
+### Using Activity Result API (Recommended)
+
+```java
+private final ActivityResultLauncher<Intent> resultLauncher = registerForActivityResult(
+    new ActivityResultContracts.StartActivityForResult(),
+    result -> {
+        Intent data = result.getData();
+        if (data == null) {
+            Toast.makeText(this, "Verification cancelled", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        if (result.getResultCode() == Activity.RESULT_OK) {
+            Toast.makeText(
+                this,
+                "Verification success! " +
+                    "VerificationId:" + data.getStringExtra(MetamapSdk.ARG_VERIFICATION_ID) +
+                    "IdentityId: " + data.getStringExtra(MetamapSdk.ARG_IDENTITY_ID),
+                Toast.LENGTH_SHORT
+            ).show();
+        } else {
+            Toast.makeText(
+                this,
+                "Verification cancelled! " +
+                    "VerificationId:" + data.getStringExtra(MetamapSdk.ARG_VERIFICATION_ID) +
+                    "IdentityId: " + data.getStringExtra(MetamapSdk.ARG_IDENTITY_ID),
+                Toast.LENGTH_SHORT
+            ).show();
+        }
+    });
+```

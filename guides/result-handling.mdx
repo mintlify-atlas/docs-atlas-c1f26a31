@@ -1,0 +1,435 @@
+---
+title: Result Handling
+description: Handle verification results using onActivityResult or the modern Activity Result API
+---
+
+After the user completes the MetaMap verification flow, you need to handle the result to determine if the verification was successful or cancelled. MetaMap supports both legacy and modern result handling approaches.
+
+## Overview
+
+MetaMap returns verification results through Android's activity result mechanism. You can use either:
+
+- **Activity Result API** (Recommended) - Modern approach for Android development
+- **onActivityResult()** (Legacy) - Traditional callback method
+
+Both approaches provide the same data: `verificationId` and `identityId`.
+
+## Using Activity Result API (Recommended)
+
+The Activity Result API is the modern way to handle results in Android. It provides better type safety and is lifecycle-aware.
+
+<Steps>
+
+### Register the Result Launcher
+
+Create an `ActivityResultLauncher` before `onCreate()`:
+
+```kotlin ResultApiActivity.kt
+import android.app.Activity
+import android.content.Intent
+import android.widget.Toast
+import androidx.activity.result.ActivityResultLauncher
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.appcompat.app.AppCompatActivity
+import com.metamap.metamap_sdk.MetamapSdk
+
+class ResultApiActivity : AppCompatActivity() {
+
+    private val resultLauncher: ActivityResultLauncher<Intent> = registerForActivityResult(
+        ActivityResultContracts.StartActivityForResult()
+    ) { result ->
+        val data = result.data
+        if (data == null) {
+            Toast.makeText(this, "Verification cancelled", Toast.LENGTH_SHORT).show()
+            return@registerForActivityResult
+        }
+        
+        if (result.resultCode == Activity.RESULT_OK) {
+            val verificationId = data.getStringExtra(MetamapSdk.ARG_VERIFICATION_ID)
+            val identityId = data.getStringExtra(MetamapSdk.ARG_IDENTITY_ID)
+            
+            Toast.makeText(
+                this,
+                "Verification success! VerificationId: $verificationId IdentityId: $identityId",
+                Toast.LENGTH_SHORT
+            ).show()
+        } else {
+            val verificationId = data.getStringExtra(MetamapSdk.ARG_VERIFICATION_ID)
+            val identityId = data.getStringExtra(MetamapSdk.ARG_IDENTITY_ID)
+            
+            Toast.makeText(
+                this,
+                "Verification cancelled! VerificationId: $verificationId IdentityId: $identityId",
+                Toast.LENGTH_SHORT
+            ).show()
+        }
+    }
+}
+```
+
+```java ResultApiActivity.java
+import android.app.Activity;
+import android.content.Intent;
+import android.widget.Toast;
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
+import androidx.appcompat.app.AppCompatActivity;
+import com.metamap.metamap_sdk.MetamapSdk;
+
+public class ResultApiActivity extends AppCompatActivity {
+
+    private final ActivityResultLauncher<Intent> resultLauncher = registerForActivityResult(
+        new ActivityResultContracts.StartActivityForResult(),
+        result -> {
+            Intent data = result.getData();
+            if (data == null) {
+                Toast.makeText(this, "Verification cancelled", Toast.LENGTH_SHORT).show();
+                return;
+            }
+            
+            if (result.getResultCode() == Activity.RESULT_OK) {
+                Toast.makeText(
+                    this,
+                    "Verification success! " +
+                        "VerificationId:" + data.getStringExtra(MetamapSdk.ARG_VERIFICATION_ID) +
+                        "IdentityId: " + data.getStringExtra(MetamapSdk.ARG_IDENTITY_ID),
+                    Toast.LENGTH_SHORT
+                ).show();
+            } else {
+                Toast.makeText(
+                    this,
+                    "Verification cancelled! " +
+                        "VerificationId:" + data.getStringExtra(MetamapSdk.ARG_VERIFICATION_ID) +
+                        "IdentityId: " + data.getStringExtra(MetamapSdk.ARG_IDENTITY_ID),
+                    Toast.LENGTH_SHORT
+                ).show();
+            }
+        }
+    );
+}
+```
+
+### Pass Launcher to MetamapButton
+
+If using `MetamapButton`, pass the launcher when setting parameters:
+
+```kotlin
+override fun onCreate(savedInstanceState: Bundle?) {
+    super.onCreate(savedInstanceState)
+    setContentView(R.layout.activity_metamap_button)
+
+    val btn = findViewById<MetamapButton>(R.id.metamapButton)
+    btn.setParams(resultLauncher, this, "YOUR_CLIENT_ID", "YOUR_FLOW_ID")
+}
+```
+
+```java
+@Override
+protected void onCreate(Bundle savedInstanceState) {
+    super.onCreate(savedInstanceState);
+    setContentView(R.layout.activity_metamap_button);
+
+    MetamapButton btn = findViewById(R.id.metamapButton);
+    btn.setParams(resultLauncher, this, "YOUR_CLIENT_ID", "YOUR_FLOW_ID");
+}
+```
+
+</Steps>
+
+<Note>
+The Activity Result API must be registered **before** the activity is created. Always call `registerForActivityResult()` at the class level, not inside `onCreate()`.
+</Note>
+
+## Using onActivityResult() (Legacy)
+
+The traditional `onActivityResult()` callback is still supported but is considered legacy. Use this approach if you're maintaining older codebases.
+
+<Steps>
+
+### Override onActivityResult()
+
+Implement the `onActivityResult()` method in your Activity:
+
+```kotlin OnActivityResultActivity.kt
+import android.app.Activity
+import android.content.Intent
+import android.widget.Toast
+import androidx.appcompat.app.AppCompatActivity
+import com.metamap.metamap_sdk.MetamapSdk
+
+class OnActivityResultActivity : AppCompatActivity() {
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        if (requestCode == MetamapSdk.DEFAULT_REQUEST_CODE) {
+            if (resultCode == Activity.RESULT_OK && data != null) {
+                val verificationId = data.getStringExtra(MetamapSdk.ARG_VERIFICATION_ID)
+                val identityId = data.getStringExtra(MetamapSdk.ARG_IDENTITY_ID)
+                
+                Toast.makeText(
+                    this,
+                    "Verification success! VerificationId: $verificationId IdentityId: $identityId",
+                    Toast.LENGTH_SHORT
+                ).show()
+            } else {
+                if (data != null) {
+                    val verificationId = data.getStringExtra(MetamapSdk.ARG_VERIFICATION_ID)
+                    val identityId = data.getStringExtra(MetamapSdk.ARG_IDENTITY_ID)
+                    
+                    Toast.makeText(
+                        this,
+                        "Verification cancelled! VerificationId: $verificationId IdentityId: $identityId",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                } else {
+                    Toast.makeText(
+                        this,
+                        "Verification cancelled!",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
+            }
+        } else {
+            super.onActivityResult(requestCode, resultCode, data)
+        }
+    }
+}
+```
+
+```java OnActivityResultActivity.java
+import android.app.Activity;
+import android.content.Intent;
+import android.widget.Toast;
+import androidx.appcompat.app.AppCompatActivity;
+import com.metamap.metamap_sdk.MetamapSdk;
+
+public class OnActivityResultActivity extends AppCompatActivity {
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (requestCode == MetamapSdk.DEFAULT_REQUEST_CODE) {
+            if (resultCode == Activity.RESULT_OK && data != null) {
+                Toast.makeText(
+                    this,
+                    "onActivityResult Verification success! " +
+                        "VerificationId:" + data.getStringExtra(MetamapSdk.ARG_VERIFICATION_ID) +
+                        "IdentityId: " + data.getStringExtra(MetamapSdk.ARG_IDENTITY_ID),
+                    Toast.LENGTH_SHORT
+                ).show();
+            } else {
+                if (data != null) {
+                    Toast.makeText(
+                        this,
+                        "onActivityResult Verification cancelled! " +
+                            "VerificationId:" + data.getStringExtra(MetamapSdk.ARG_VERIFICATION_ID) +
+                            "IdentityId: " + data.getStringExtra(MetamapSdk.ARG_IDENTITY_ID),
+                        Toast.LENGTH_SHORT
+                    ).show();
+                } else {
+                    Toast.makeText(
+                        this,
+                        "onActivityResult Verification cancelled!",
+                        Toast.LENGTH_SHORT
+                    ).show();
+                }
+            }
+        } else {
+            super.onActivityResult(requestCode, resultCode, data);
+        }
+    }
+}
+```
+
+### Use Default Configuration
+
+When using `onActivityResult()`, configure `MetamapButton` or `startFlow()` without passing a launcher:
+
+```kotlin
+val btn = findViewById<MetamapButton>(R.id.metamapButton)
+btn.setParams(this, "YOUR_CLIENT_ID", "YOUR_FLOW_ID")
+```
+
+```java
+MetamapButton btn = findViewById(R.id.metamapButton);
+btn.setParams(this, "YOUR_CLIENT_ID", "YOUR_FLOW_ID");
+```
+
+</Steps>
+
+<Warning>
+The `onActivityResult()` approach is deprecated in modern Android development. Migrate to the Activity Result API for new projects.
+</Warning>
+
+## Result Data
+
+### SDK Constants
+
+MetaMap provides constants for accessing result data:
+
+| Constant | Type | Description |
+|----------|------|-------------|
+| `MetamapSdk.DEFAULT_REQUEST_CODE` | `Int` | Default request code for verification flow |
+| `MetamapSdk.ARG_VERIFICATION_ID` | `String` | Intent extra key for verification ID |
+| `MetamapSdk.ARG_IDENTITY_ID` | `String` | Intent extra key for identity ID |
+
+### Result Codes
+
+| Result Code | Description |
+|-------------|-------------|
+| `Activity.RESULT_OK` | Verification completed successfully |
+| `Activity.RESULT_CANCELED` | Verification was cancelled by user |
+
+### Extracting Data
+
+Extract verification and identity IDs from the result Intent:
+
+```kotlin
+val verificationId = data.getStringExtra(MetamapSdk.ARG_VERIFICATION_ID)
+val identityId = data.getStringExtra(MetamapSdk.ARG_IDENTITY_ID)
+```
+
+```java
+String verificationId = data.getStringExtra(MetamapSdk.ARG_VERIFICATION_ID);
+String identityId = data.getStringExtra(MetamapSdk.ARG_IDENTITY_ID);
+```
+
+## Complete Example
+
+Here's a complete example using the Activity Result API with both `MetamapButton` and result handling:
+
+<CodeGroup>
+
+```kotlin Kotlin
+import android.app.Activity
+import android.content.Intent
+import android.os.Bundle
+import android.widget.Toast
+import androidx.activity.result.ActivityResultLauncher
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.appcompat.app.AppCompatActivity
+import com.metamap.metamap_sdk.MetamapButton
+import com.metamap.metamap_sdk.MetamapSdk
+
+class ResultApiActivity : AppCompatActivity() {
+
+    private val resultLauncher: ActivityResultLauncher<Intent> = registerForActivityResult(
+        ActivityResultContracts.StartActivityForResult()
+    ) { result ->
+        val data = result.data
+        if (data == null) {
+            Toast.makeText(this, "Verification cancelled", Toast.LENGTH_SHORT).show()
+            return@registerForActivityResult
+        }
+        
+        if (result.resultCode == Activity.RESULT_OK) {
+            val verificationId = data.getStringExtra(MetamapSdk.ARG_VERIFICATION_ID)
+            val identityId = data.getStringExtra(MetamapSdk.ARG_IDENTITY_ID)
+            
+            Toast.makeText(
+                this,
+                "Verification success! VerificationId: $verificationId IdentityId: $identityId",
+                Toast.LENGTH_SHORT
+            ).show()
+        } else {
+            val verificationId = data.getStringExtra(MetamapSdk.ARG_VERIFICATION_ID)
+            val identityId = data.getStringExtra(MetamapSdk.ARG_IDENTITY_ID)
+            
+            Toast.makeText(
+                this,
+                "Verification cancelled! VerificationId: $verificationId IdentityId: $identityId",
+                Toast.LENGTH_SHORT
+            ).show()
+        }
+    }
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setContentView(R.layout.activity_metamap_button)
+
+        val btn = findViewById<MetamapButton>(R.id.metamapButton)
+        btn.setParams(resultLauncher, this, "YOUR_CLIENT_ID", "YOUR_FLOW_ID")
+    }
+}
+```
+
+```java Java
+import android.app.Activity;
+import android.content.Intent;
+import android.os.Bundle;
+import android.widget.Toast;
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
+import androidx.appcompat.app.AppCompatActivity;
+import com.metamap.metamap_sdk.MetamapButton;
+import com.metamap.metamap_sdk.MetamapSdk;
+
+public class ResultApiActivity extends AppCompatActivity {
+
+    private final ActivityResultLauncher<Intent> resultLauncher = registerForActivityResult(
+        new ActivityResultContracts.StartActivityForResult(),
+        result -> {
+            Intent data = result.getData();
+            if (data == null) {
+                Toast.makeText(this, "Verification cancelled", Toast.LENGTH_SHORT).show();
+                return;
+            }
+            
+            if (result.getResultCode() == Activity.RESULT_OK) {
+                Toast.makeText(
+                    this,
+                    "Verification success! " +
+                        "VerificationId:" + data.getStringExtra(MetamapSdk.ARG_VERIFICATION_ID) +
+                        "IdentityId: " + data.getStringExtra(MetamapSdk.ARG_IDENTITY_ID),
+                    Toast.LENGTH_SHORT
+                ).show();
+            } else {
+                Toast.makeText(
+                    this,
+                    "Verification cancelled! " +
+                        "VerificationId:" + data.getStringExtra(MetamapSdk.ARG_VERIFICATION_ID) +
+                        "IdentityId: " + data.getStringExtra(MetamapSdk.ARG_IDENTITY_ID),
+                    Toast.LENGTH_SHORT
+                ).show();
+            }
+        }
+    );
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_metamap_button);
+
+        MetamapButton btn = findViewById(R.id.metamapButton);
+        btn.setParams(resultLauncher, this, "YOUR_CLIENT_ID", "YOUR_FLOW_ID");
+    }
+}
+```
+
+</CodeGroup>
+
+## Best Practices
+
+<CardGroup cols={2}>
+  <Card title="Use Activity Result API" icon="check">
+    Prefer the modern Activity Result API for new development
+  </Card>
+  <Card title="Check for Null Data" icon="shield">
+    Always verify the Intent data is not null before extracting values
+  </Card>
+  <Card title="Handle Both Cases" icon="code-branch">
+    Handle both success and cancellation scenarios appropriately
+  </Card>
+  <Card title="Store IDs Securely" icon="lock">
+    Store verification and identity IDs securely if needed for later use
+  </Card>
+</CardGroup>
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Custom Metadata" icon="database" href="/guides/metadata">
+    Learn how to pass additional data with verification requests
+  </Card>
+  <Card title="Basic Integration" icon="rocket" href="/guides/basic-integration">
+    Review the basic integration setup
+  </Card>
+</CardGroup>

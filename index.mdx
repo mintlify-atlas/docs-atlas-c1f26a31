@@ -1,97 +1,223 @@
 ---
-title: "Introduction"
-description: "Welcome to the new home for your documentation"
+title: MetaMap Android SDK
+description: Identity verification and document authentication for Android applications
+mode: custom
 ---
 
-## Setting up
+<div className="relative overflow-hidden bg-gradient-to-br from-[#444444] via-[#5a6ea6] to-[#65cff4] dark:from-[#1a1d27] dark:via-[#444444] dark:to-[#2a3548]">
+  <div className="absolute inset-0 bg-black/20 dark:bg-black/40"></div>
+  <div className="relative max-w-6xl mx-auto px-6 py-20 sm:py-24 lg:py-28">
+    <div className="max-w-3xl">
+      <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-white mb-6">
+        MetaMap Android SDK
+      </h1>
+      <p className="text-lg sm:text-xl text-white/90 mb-8 max-w-2xl">
+        Build secure identity verification flows with document authentication, biometric verification, and smart capture powered by machine learning.
+      </p>
+      <div className="flex flex-wrap gap-4">
+        <a 
+          href="/quickstart" 
+          className="inline-flex items-center px-6 py-3 rounded-lg bg-white text-[#444444] font-semibold hover:bg-gray-100 transition-colors no-underline"
+        >
+          Get Started
+        </a>
+        <a 
+          href="/api/metamap-sdk" 
+          className="inline-flex items-center px-6 py-3 rounded-lg border border-white/30 bg-white/10 text-white font-semibold hover:bg-white/20 transition-colors no-underline backdrop-blur-sm"
+        >
+          API Reference
+        </a>
+      </div>
+    </div>
+  </div>
+</div>
 
-Get your documentation site up and running in minutes.
+<div className="mt-16 mb-16 max-w-5xl mx-auto px-6">
+  <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white mb-4">
+    Quick start
+  </h2>
+  <p className="text-base text-gray-600 dark:text-gray-400 mb-8">
+    Get up and running with MetaMap in minutes
+  </p>
 
-<Card
-  title="Start here"
-  icon="rocket"
-  href="/quickstart"
-  horizontal
->
-  Follow our three step quickstart guide.
-</Card>
+  <Steps>
+    <Step title="Add the SDK to your project">
+      Add the MetaMap SDK dependency to your app's `build.gradle` file:
 
-## Make it yours
+      ```gradle
+      dependencies {
+          implementation 'com.metamap:android-sdk:3.42.17'
+      }
+      ```
+    </Step>
 
-Design a docs site that looks great and empowers your users.
+    <Step title="Initialize the verification flow">
+      Use `MetamapSdk.startFlow()` to launch a verification session with your client ID and flow ID:
 
-<Columns cols={2}>
-  <Card
-    title="Edit locally"
-    icon="pen-to-square"
-    href="/development"
-  >
-    Edit your docs locally and preview them in real time.
-  </Card>
-  <Card
-    title="Customize your site"
-    icon="palette"
-    href="/essentials/settings"
-  >
-    Customize the design and colors of your site to match your brand.
-  </Card>
-    <Card
-    title="Set up navigation"
-    icon="map"
-    href="/essentials/navigation"
-  >
-    Organize your docs to help users find what they need and succeed with your product.
-  </Card>
-  <Card
-    title="API documentation"
-    icon="terminal"
-    href="/api-reference/introduction"
-  >
-    Auto-generate API documentation from OpenAPI specifications.
-  </Card>
-</Columns>
+      ```java
+      MetamapSdk.INSTANCE.startFlow(
+          this,
+          "YOUR_CLIENT_ID",
+          "YOUR_FLOW_ID",
+          new Metadata.Builder().build()
+      );
+      ```
+    </Step>
 
-## Create beautiful pages
+    <Step title="Handle the verification result">
+      Capture the verification result using `onActivityResult` or the Activity Result API:
 
-Everything you need to create world-class documentation.
+      ```java
+      @Override
+      protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+          if (requestCode == MetamapSdk.DEFAULT_REQUEST_CODE) {
+              if (resultCode == RESULT_OK && data != null) {
+                  String verificationId = data.getStringExtra(MetamapSdk.ARG_VERIFICATION_ID);
+                  String identityId = data.getStringExtra(MetamapSdk.ARG_IDENTITY_ID);
+                  // Handle success
+              }
+          }
+      }
+      ```
+    </Step>
+  </Steps>
+</div>
 
-<Columns cols={2}>
-  <Card
-    title="Write with MDX"
-    icon="pen-fancy"
-    href="/essentials/markdown"
-  >
-    Use MDX to style your docs pages.
-  </Card>
-  <Card
-    title="Code samples"
-    icon="code"
-    href="/essentials/code"
-  >
-    Add sample code to demonstrate how to use your product.
-  </Card>
-  <Card
-    title="Images"
-    icon="image"
-    href="/essentials/images"
-  >
-    Display images and other media.
-  </Card>
-  <Card
-    title="Reusable snippets"
-    icon="recycle"
-    href="/essentials/reusable-snippets"
-  >
-    Write once and reuse across your docs.
-  </Card>
-</Columns>
+<div className="mt-16 mb-16 max-w-5xl mx-auto px-6">
+  <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white mb-4">
+    Explore by topic
+  </h2>
+  <p className="text-base text-gray-600 dark:text-gray-400 mb-8">
+    Learn how to integrate and customize MetaMap for your use case
+  </p>
 
-## Need inspiration?
+  <CardGroup cols={3}>
+    <Card 
+      title="Basic Integration" 
+      icon="code" 
+      href="/guides/basic-integration"
+    >
+      Learn the fundamentals of integrating MetaMap into your Android app
+    </Card>
+    <Card 
+      title="MetaMap Button" 
+      icon="square" 
+      href="/guides/metamap-button"
+    >
+      Use the pre-built MetamapButton component for quick integration
+    </Card>
+    <Card 
+      title="Result Handling" 
+      icon="check-circle" 
+      href="/guides/result-handling"
+    >
+      Capture and process verification results with Activity Result API
+    </Card>
+    <Card 
+      title="UI Customization" 
+      icon="palette" 
+      href="/customization/ui-colors"
+    >
+      Customize colors, fonts, and language to match your brand
+    </Card>
+    <Card 
+      title="Face Matching" 
+      icon="user-check" 
+      href="/advanced/face-match"
+    >
+      Enable biometric face matching for enhanced security
+    </Card>
+    <Card 
+      title="Smart Capture" 
+      icon="camera" 
+      href="/advanced/smart-capture"
+    >
+      Leverage ML-powered document detection for better capture
+    </Card>
+  </CardGroup>
+</div>
 
-<Card
-  title="See complete examples"
-  icon="stars"
-  href="https://mintlify.com/customers"
->
-  Browse our showcase of exceptional documentation sites.
-</Card>
+<div className="mt-16 mb-16 max-w-5xl mx-auto px-6">
+  <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white mb-4">
+    Key features
+  </h2>
+  <p className="text-base text-gray-600 dark:text-gray-400 mb-8">
+    Everything you need for secure identity verification
+  </p>
+
+  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+    <div className="p-6 rounded-xl border border-gray-200 dark:border-[#27272a] bg-white dark:bg-[#1a1d27]">
+      <div className="w-10 h-10 rounded-lg bg-[#444444] dark:bg-[#65cff4] flex items-center justify-center mb-4">
+        <svg className="w-6 h-6 text-white dark:text-[#1a1d27]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+        </svg>
+      </div>
+      <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
+        Document Authentication
+      </h3>
+      <p className="text-sm text-gray-600 dark:text-gray-400">
+        Verify government-issued IDs, passports, and other documents with advanced OCR and fraud detection
+      </p>
+    </div>
+
+    <div className="p-6 rounded-xl border border-gray-200 dark:border-[#27272a] bg-white dark:bg-[#1a1d27]">
+      <div className="w-10 h-10 rounded-lg bg-[#444444] dark:bg-[#65cff4] flex items-center justify-center mb-4">
+        <svg className="w-6 h-6 text-white dark:text-[#1a1d27]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+        </svg>
+      </div>
+      <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
+        Biometric Verification
+      </h3>
+      <p className="text-sm text-gray-600 dark:text-gray-400">
+        Match user selfies against document photos to prevent identity fraud and impersonation
+      </p>
+    </div>
+
+    <div className="p-6 rounded-xl border border-gray-200 dark:border-[#27272a] bg-white dark:bg-[#1a1d27]">
+      <div className="w-10 h-10 rounded-lg bg-[#444444] dark:bg-[#65cff4] flex items-center justify-center mb-4">
+        <svg className="w-6 h-6 text-white dark:text-[#1a1d27]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
+        </svg>
+      </div>
+      <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
+        Smart Capture
+      </h3>
+      <p className="text-sm text-gray-600 dark:text-gray-400">
+        ML-powered document detection automatically captures images when documents are properly positioned
+      </p>
+    </div>
+
+    <div className="p-6 rounded-xl border border-gray-200 dark:border-[#27272a] bg-white dark:bg-[#1a1d27]">
+      <div className="w-10 h-10 rounded-lg bg-[#444444] dark:bg-[#65cff4] flex items-center justify-center mb-4">
+        <svg className="w-6 h-6 text-white dark:text-[#1a1d27]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01" />
+        </svg>
+      </div>
+      <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
+        Full Customization
+      </h3>
+      <p className="text-sm text-gray-600 dark:text-gray-400">
+        Customize UI colors, fonts, and language to seamlessly match your application's design
+      </p>
+    </div>
+  </div>
+</div>
+
+<div className="mt-16 mb-16 max-w-5xl mx-auto px-6">
+  <div className="rounded-2xl border border-gray-200 dark:border-[#27272a] bg-gradient-to-br from-gray-50 to-white dark:from-[#1a1d27] dark:to-[#242838] p-8 sm:p-12">
+    <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white mb-4">
+      Ready to get started?
+    </h2>
+    <p className="text-base text-gray-600 dark:text-gray-400 mb-6 max-w-2xl">
+      Follow our quickstart guide to integrate MetaMap into your Android application in minutes.
+    </p>
+    <a 
+      href="/quickstart" 
+      className="inline-flex items-center px-6 py-3 rounded-lg bg-[#444444] text-white font-semibold hover:bg-[#555555] transition-colors no-underline"
+    >
+      View Quickstart Guide
+    </a>
+  </div>
+</div>

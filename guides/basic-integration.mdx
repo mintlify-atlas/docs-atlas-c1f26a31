@@ -1,0 +1,148 @@
+---
+title: Basic Integration
+description: Learn how to integrate MetaMap verification flow using the core startFlow() method
+---
+
+The basic integration approach uses `MetamapSdk.startFlow()` to launch the verification flow programmatically. This method gives you full control over when and how the verification process starts.
+
+## Overview
+
+The `startFlow()` method is the core way to trigger MetaMap's identity verification flow. You can call it from any UI component like a button click, after user authentication, or at any point in your app flow.
+
+<Steps>
+
+### Add a Button to Your Layout
+
+Create a standard Android button in your layout file:
+
+```xml activity_simple_button.xml
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:gravity="center">
+
+    <Button
+        android:id="@+id/metamapButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Start Metamap"/>
+
+</LinearLayout>
+```
+
+### Initialize and Launch the Flow
+
+In your Activity, set up the button click listener to call `startFlow()`:
+
+```kotlin MethodCallActivity.kt
+import com.metamap.metamap_sdk.MetamapSdk
+
+class MethodCallActivity : AppCompatActivity() {
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setContentView(R.layout.activity_simple_button)
+
+        val btn = findViewById<Button>(R.id.metamapButton)
+        btn.setOnClickListener {
+            MetamapSdk.startFlow(
+                this,
+                "YOUR_CLIENT_ID",
+                "YOUR_FLOW_ID"
+            )
+        }
+    }
+}
+```
+
+```java MethodCallActivity.java
+import com.metamap.metamap_sdk.MetamapSdk;
+
+public class MethodCallActivity extends AppCompatActivity {
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_simple_button);
+
+        Button btn = findViewById(R.id.metamapButton);
+        btn.setOnClickListener(v -> {
+            MetamapSdk.INSTANCE.startFlow(
+                this,
+                "YOUR_CLIENT_ID",
+                "YOUR_FLOW_ID"
+            );
+        });
+    }
+}
+```
+
+### Replace Configuration Values
+
+Replace the placeholder values with your actual MetaMap credentials:
+
+- `YOUR_CLIENT_ID`: Your MetaMap client identifier
+- `YOUR_FLOW_ID`: The ID of the verification flow you want to use
+
+</Steps>
+
+## Method Signature
+
+The `startFlow()` method accepts the following parameters:
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `activity` | `Activity` | The current activity context |
+| `clientId` | `String` | Your MetaMap client ID |
+| `flowId` | `String` | The verification flow ID |
+| `metadata` | `Metadata` | (Optional) Additional data to pass with the verification |
+
+## With Metadata
+
+You can also pass custom metadata along with the verification request:
+
+```kotlin
+import com.metamap.metamap_sdk.Metadata
+import com.metamap.metamap_sdk.MetamapSdk
+
+MetamapSdk.startFlow(
+    this,
+    "YOUR_CLIENT_ID",
+    "YOUR_FLOW_ID",
+    Metadata.Builder()
+        .additionalData("userId", "qwfguweo")
+        .additionalData("type", 2)
+        .build()
+)
+```
+
+```java
+import com.metamap.metamap_sdk.Metadata;
+import com.metamap.metamap_sdk.MetamapSdk;
+
+MetamapSdk.INSTANCE.startFlow(
+    this,
+    "YOUR_CLIENT_ID",
+    "YOUR_FLOW_ID",
+    new Metadata.Builder()
+        .additionalData("userId", "qwfguweo")
+        .additionalData("type", 2)
+        .build()
+);
+```
+
+<Note>
+Learn more about passing custom metadata in the [Metadata guide](/guides/metadata).
+</Note>
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Handle Results" icon="check-circle" href="/guides/result-handling">
+    Learn how to capture verification results
+  </Card>
+  <Card title="Custom Metadata" icon="database" href="/guides/metadata">
+    Pass additional data with verification requests
+  </Card>
+</CardGroup>

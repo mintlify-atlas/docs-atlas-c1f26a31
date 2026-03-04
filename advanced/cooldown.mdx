@@ -1,0 +1,297 @@
+---
+title: "Cooldown Configuration"
+description: "Prevent verification abuse by implementing cooldown periods based on user identifiers"
+---
+
+Cooldown Configuration allows you to prevent verification abuse by implementing time-based restrictions on repeated verification attempts. By providing user identifiers, you can ensure the same user cannot repeatedly attempt verification within a specified cooldown period.
+
+## Overview
+
+Cooldown works by:
+
+- Identifying users through various identifiers (phone number, email, document number)
+- Tracking verification attempts per identifier
+- Enforcing configurable cooldown periods between attempts
+- Preventing abuse and reducing fraudulent verification attempts
+
+<Info>
+  Cooldown periods are configured in your MetaMap dashboard under Flow Settings. The SDK only needs to provide the user identifier.
+</Info>
+
+## Implementation
+
+<Steps>
+  <Step title="Configure Cooldown in Dashboard">
+    Before implementing cooldown in your app:
+
+    1. Log in to your MetaMap dashboard
+    2. Navigate to your Flow Settings
+    3. Configure the cooldown period (e.g., 24 hours, 7 days)
+    4. Select which identifiers to track
+  </Step>
+
+  <Step title="Import Required Classes">
+    Import the necessary MetaMap SDK classes:
+
+    ```java
+    import com.metamap.metamap_sdk.Metadata;
+    import com.metamap.metamap_sdk.MetamapButton;
+    ```
+  </Step>
+
+  <Step title="Provide User Identifier">
+    Add user identifiers to the metadata using `additionalData()`:
+
+    ```java
+    MetamapButton btn = findViewById(R.id.metamapButton);
+
+    btn.setParams(
+        this,
+        "YOUR_CLIENT_ID",
+        "YOUR_FLOW_ID",
+        new Metadata.Builder()
+            .additionalData("phoneNumber", "USER_PHONE_NUMBER")
+            .build()
+    );
+    ```
+  </Step>
+</Steps>
+
+## Supported Identifiers
+
+You can use any of the following fields to implement cooldown:
+
+| Identifier | Key | Example |
+|------------|-----|----------|
+| Phone Number | `phoneNumber` | `+1234567890` |
+| Email Address | `email` | `user@example.com` |
+| Document Number | `documentNumber` | `ABC123456` |
+
+<Note>
+  You can provide multiple identifiers. The cooldown will be enforced based on any matching identifier.
+</Note>
+
+## Examples
+
+### Phone Number Cooldown
+
+Track verification attempts by phone number:
+
+```java
+MetamapButton btn = findViewById(R.id.metamapButton);
+
+btn.setParams(
+    this,
+    "YOUR_CLIENT_ID",
+    "YOUR_FLOW_ID",
+    new Metadata.Builder()
+        .additionalData("phoneNumber", "USER_PHONE_NUMBER")
+        .build()
+);
+```
+
+### Email Cooldown
+
+Track verification attempts by email address:
+
+```java
+MetamapButton btn = findViewById(R.id.metamapButton);
+
+btn.setParams(
+    this,
+    "YOUR_CLIENT_ID",
+    "YOUR_FLOW_ID",
+    new Metadata.Builder()
+        .additionalData("email", "USER_EMAIL")
+        .build()
+);
+```
+
+### Document Number Cooldown
+
+Track verification attempts by document number:
+
+```java
+MetamapButton btn = findViewById(R.id.metamapButton);
+
+btn.setParams(
+    this,
+    "YOUR_CLIENT_ID",
+    "YOUR_FLOW_ID",
+    new Metadata.Builder()
+        .additionalData("documentNumber", "USER_DOCUMENT_NUMBER")
+        .build()
+);
+```
+
+### Multiple Identifiers
+
+Track by multiple identifiers for stronger protection:
+
+```java
+MetamapButton btn = findViewById(R.id.metamapButton);
+
+btn.setParams(
+    this,
+    "YOUR_CLIENT_ID",
+    "YOUR_FLOW_ID",
+    new Metadata.Builder()
+        .additionalData("phoneNumber", "USER_PHONE_NUMBER")
+        .additionalData("email", "USER_EMAIL")
+        .additionalData("documentNumber", "USER_DOCUMENT_NUMBER")
+        .build()
+);
+```
+
+## Use Cases
+
+### Preventing Fraud
+
+Prevent the same individual from creating multiple accounts:
+
+```java
+String userPhone = getUserPhoneNumber();
+String userEmail = getUserEmail();
+
+btn.setParams(
+    this,
+    "YOUR_CLIENT_ID",
+    "YOUR_FLOW_ID",
+    new Metadata.Builder()
+        .additionalData("phoneNumber", userPhone)
+        .additionalData("email", userEmail)
+        .build()
+);
+```
+
+### Rate Limiting
+
+Limit verification attempts to reduce system load:
+
+```java
+// User attempts verification
+String userId = getCurrentUserId();
+String userPhone = getUserPhoneNumber();
+
+btn.setParams(
+    this,
+    "YOUR_CLIENT_ID",
+    "YOUR_FLOW_ID",
+    new Metadata.Builder()
+        .additionalData("phoneNumber", userPhone)
+        .build()
+);
+```
+
+### Compliance Requirements
+
+Meet regulatory requirements for identity verification frequency:
+
+```java
+String documentNumber = getUserDocumentNumber();
+
+btn.setParams(
+    this,
+    "YOUR_CLIENT_ID",
+    "YOUR_FLOW_ID",
+    new Metadata.Builder()
+        .additionalData("documentNumber", documentNumber)
+        .build()
+);
+```
+
+## Complete Example
+
+```java
+package com.example.app;
+
+import android.os.Bundle;
+import androidx.appcompat.app.AppCompatActivity;
+import com.metamap.metamap_sdk.Metadata;
+import com.metamap.metamap_sdk.MetamapButton;
+
+public class CooldownActivity extends AppCompatActivity {
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_metamap_button);
+
+        MetamapButton btn = findViewById(R.id.metamapButton);
+
+        btn.setParams(
+            this,
+            "YOUR_CLIENT_ID",
+            "YOUR_FLOW_ID",
+            new Metadata.Builder()
+                .additionalData("phoneNumber", "USER_PHONE_NUMBER")
+                // Any of the following fields is also valid:
+                // .additionalData("email", "USER_EMAIL")
+                // .additionalData("documentNumber", "USER_DOCUMENT_NUMBER")
+                .build()
+        );
+    }
+}
+```
+
+## Handling Cooldown Errors
+
+When a user is in cooldown, the verification will fail with a specific error. Handle this in your result callback:
+
+```java
+@Override
+protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+    super.onActivityResult(requestCode, resultCode, data);
+    
+    if (requestCode == MetamapSdk.DEFAULT_REQUEST_CODE) {
+        if (resultCode == RESULT_OK && data != null) {
+            // Success
+        } else if (resultCode == RESULT_CANCELED) {
+            // Check for cooldown error
+            String error = data.getStringExtra("error");
+            if (error != null && error.contains("cooldown")) {
+                showCooldownMessage();
+            }
+        }
+    }
+}
+
+private void showCooldownMessage() {
+    // Inform user they need to wait before attempting again
+    Toast.makeText(this, 
+        "You've recently completed verification. Please try again later.",
+        Toast.LENGTH_LONG
+    ).show();
+}
+```
+
+<Warning>
+  Ensure you collect proper user consent before using personal identifiers like phone numbers or emails for cooldown tracking.
+</Warning>
+
+<Note>
+  The cooldown period is configured in your MetaMap dashboard and applies globally to all integrations using that flow.
+</Note>
+
+## Best Practices
+
+1. **User Communication**: Clearly inform users about cooldown periods before they start verification
+2. **Multiple Identifiers**: Use multiple identifiers for stronger fraud prevention
+3. **Data Privacy**: Ensure compliance with data protection regulations when collecting identifiers
+4. **Error Handling**: Implement clear error messages when cooldown is triggered
+5. **Dashboard Configuration**: Set appropriate cooldown periods based on your use case
+6. **Testing**: Test cooldown behavior in development before deploying to production
+
+## Privacy Considerations
+
+- Only collect identifiers that are necessary for your use case
+- Inform users how their data will be used
+- Ensure compliance with GDPR, CCPA, and other privacy regulations
+- Store identifiers securely if you maintain your own records
+- Provide users with information about cooldown periods in your privacy policy
+
+## Next Steps
+
+- Configure [Face Match](/advanced/face-match) for biometric verification
+- Enable [Smart Capture](/advanced/smart-capture) for better document quality
+- Set up [Encryption](/advanced/encryption) for data security

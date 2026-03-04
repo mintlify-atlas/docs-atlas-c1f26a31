@@ -1,0 +1,79 @@
+---
+title: 'FontConfig'
+description: 'Configure custom fonts for the MetaMap SDK verification interface'
+---
+
+## Overview
+
+`FontConfig` allows you to use custom fonts in the MetaMap verification flow. You can specify separate font files for regular and bold text styles.
+
+## Constructor
+
+```java
+FontConfig(String regularFontPath, String boldFontPath)
+```
+
+### Parameters
+
+<ParamField path="regularFontPath" type="String" required>
+  Path to the regular font file in your app's assets folder. This font is used for normal weight text throughout the verification interface.
+  
+  **Example:** `"comic_neue.ttf"`
+</ParamField>
+
+<ParamField path="boldFontPath" type="String" required>
+  Path to the bold font file in your app's assets folder. This font is used for bold or emphasized text throughout the verification interface.
+  
+  **Example:** `"comic_neue_bold.ttf"`
+</ParamField>
+
+## Usage Example
+
+```java
+import com.metamap.metamap_sdk.Metadata;
+import com.metamap.metamap_sdk.MetamapButton;
+import com.metamap.metamap_sdk.metadata.FontConfig;
+import com.metamap.metamap_sdk.metadata.UIConfig;
+
+// Create FontConfig with custom font files from assets folder
+FontConfig fontConfig = new FontConfig(
+        "comic_neue.ttf",
+        "comic_neue_bold.ttf"
+);
+
+// Apply the font configuration to UIConfig
+UIConfig uiConfig = new UIConfig.Builder()
+        .fontConfig(fontConfig)
+        .build();
+        
+// Pass the UIConfig to the SDK via Metadata
+Metadata metadata = new Metadata.Builder()
+        .uiConfig(uiConfig)
+        .build();
+        
+MetamapButton btn = findViewById(R.id.metamapButton);
+btn.setParams(this, "YOUR_CLIENT_ID", "YOUR_FLOW_ID", metadata);
+```
+
+## Setting Up Custom Fonts
+
+1. Add your custom font files (`.ttf` or `.otf`) to your app's `assets` folder:
+   ```
+   app/src/main/assets/
+   ├── comic_neue.ttf
+   └── comic_neue_bold.ttf
+   ```
+
+2. Create a `FontConfig` instance with the file names (relative to the assets folder)
+
+3. Pass the `FontConfig` to `UIConfig.Builder` using the `fontConfig()` method
+
+4. Apply the `UIConfig` to your verification flow via `Metadata.Builder`
+
+## Notes
+
+- Both font parameters are required when creating a `FontConfig` instance
+- Font files must be placed in your app's `assets` folder
+- Supported font formats: TrueType (`.ttf`) and OpenType (`.otf`)
+- The font paths are relative to the `assets` folder root
+- Make sure your font files have appropriate licensing for distribution in your app

@@ -1,80 +1,469 @@
 ---
-title: "Quickstart"
-description: "Start building awesome documentation in minutes"
+title: Quickstart
+description: Build your first identity verification flow in minutes
 ---
 
-## Get started in three steps
+This guide will walk you through implementing a basic identity verification flow using the MetaMap Android SDK.
 
-Get your documentation site running locally and make your first customization.
-
-### Step 1: Set up your local environment
-
-<AccordionGroup>
-  <Accordion icon="copy" title="Clone your docs locally">
-    During the onboarding process, you created a GitHub repository with your docs content if you didn't already have one. You can find a link to this repository in your [dashboard](https://dashboard.mintlify.com).
-    
-    To clone the repository locally so that you can make and preview changes to your docs, follow the [Cloning a repository](https://docs.github.com/en/repositories/creating-and-managing-repositories/cloning-a-repository) guide in the GitHub docs.
-  </Accordion>
-  <Accordion icon="rectangle-terminal" title="Start the preview server">
-    1. Install the Mintlify CLI: `npm i -g mint`
-    2. Navigate to your docs directory and run: `mint dev`
-    3. Open `http://localhost:3000` to see your docs live!
-    
-    <Tip>Your preview updates automatically as you edit files.</Tip>
-  </Accordion>
-</AccordionGroup>
-
-### Step 2: Deploy your changes
-
-<AccordionGroup>
-  <Accordion icon="github" title="Install our GitHub app">
-    Install the Mintlify GitHub app from your [dashboard](https://dashboard.mintlify.com/settings/organization/github-app).
-    
-    Our GitHub app automatically deploys your changes to your docs site, so you don't need to manage deployments yourself.
-</Accordion>
-<Accordion icon="palette" title="Update your site name and colors">
-    For a first change, let's update the name and colors of your docs site.
-
-    1. Open `docs.json` in your editor.
-    2. Change the `"name"` field to your project name.
-    3. Update the `"colors"` to match your brand.
-    4. Save and see your changes instantly at `http://localhost:3000`.
-
-    <Tip>Try changing the primary color to see an immediate difference!</Tip>
-  </Accordion>
-</AccordionGroup>
-
-### Step 3: Go live
-
-<Accordion icon="rocket" title="Publish your docs">
-  1. Commit and push your changes.
-  2. Your docs will update and be live in moments!
-</Accordion>
-
-## Next steps
-
-Now that you have your docs running, explore these key features:
-
-<CardGroup cols={2}>
-
-<Card title="Write Content" icon="pen-to-square" href="/essentials/markdown">
-  Learn MDX syntax and start writing your documentation.
-</Card>
-
-<Card title="Customize style" icon="palette" href="/essentials/settings">
-  Make your docs match your brand perfectly.
-</Card>
-
-<Card title="Add code examples" icon="square-code" href="/essentials/code">
-  Include syntax-highlighted code blocks.
-</Card>
-
-<Card title="API documentation" icon="code" href="/api-reference/introduction">
-  Auto-generate API docs from OpenAPI specs.
-</Card>
-
-</CardGroup>
+## Prerequisites
 
 <Note>
-  **Need help?** See our [full documentation](https://mintlify.com/docs) or join our [community](https://mintlify.com/community).
+Before starting, ensure you have:
+- Completed the [installation](/installation) steps
+- Your Client ID from the MetaMap dashboard
+- Your Flow ID from the MetaMap dashboard
 </Note>
+
+## Implementation Options
+
+The SDK provides two main ways to start a verification flow:
+
+1. **Programmatic Method**: Call `MetamapSdk.startFlow()` from your code
+2. **UI Button**: Use the pre-built `MetamapButton` component
+
+Let's implement both approaches.
+
+## Option 1: Programmatic Method
+
+This approach gives you full control over when and how the verification flow starts.
+
+### Step 1: Create Your Activity
+
+Create a new Activity or use an existing one:
+
+```java MethodCallActivity.java
+package com.yourcompany.yourapp;
+
+import android.os.Bundle;
+import android.widget.Button;
+import androidx.appcompat.app.AppCompatActivity;
+
+import com.metamap.metamap_sdk.Metadata;
+import com.metamap.metamap_sdk.MetamapSdk;
+
+public class MethodCallActivity extends AppCompatActivity {
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+
+        Button verifyButton = findViewById(R.id.verifyButton);
+        verifyButton.setOnClickListener(v -> {
+            MetamapSdk.INSTANCE.startFlow(
+                    this,
+                    "YOUR_CLIENT_ID",
+                    "YOUR_FLOW_ID",
+                    new Metadata.Builder()
+                            .additionalData("userId", "user_12345")
+                            .additionalData("sessionId", "session_xyz")
+                            .build()
+            );
+        });
+    }
+}
+```
+
+### Step 2: Create Layout
+
+Create a simple layout with a button:
+
+```xml res/layout/activity_main.xml
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:gravity="center"
+    android:orientation="vertical"
+    android:padding="16dp">
+
+    <Button
+        android:id="@+id/verifyButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Start Verification" />
+</LinearLayout>
+```
+
+### Step 3: Handle Results
+
+Add result handling to your Activity using the modern Activity Result API:
+
+```java MethodCallActivity.java
+package com.yourcompany.yourapp;
+
+import android.app.Activity;
+import android.content.Intent;
+import android.os.Bundle;
+import android.widget.Button;
+import android.widget.Toast;
+
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
+import androidx.appcompat.app.AppCompatActivity;
+
+import com.metamap.metamap_sdk.Metadata;
+import com.metamap.metamap_sdk.MetamapSdk;
+
+public class MethodCallActivity extends AppCompatActivity {
+
+    private ActivityResultLauncher<Intent> verificationLauncher;
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+
+        // Register the result handler
+        verificationLauncher = registerForActivityResult(
+                new ActivityResultContracts.StartActivityForResult(),
+                result -> {
+                    Intent data = result.getData();
+                    if (data == null) {
+                        Toast.makeText(this, "Verification cancelled", Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+                    
+                    if (result.getResultCode() == Activity.RESULT_OK) {
+                        String verificationId = data.getStringExtra(MetamapSdk.ARG_VERIFICATION_ID);
+                        String identityId = data.getStringExtra(MetamapSdk.ARG_IDENTITY_ID);
+                        
+                        Toast.makeText(
+                                this,
+                                "Verification success! ID: " + verificationId,
+                                Toast.LENGTH_LONG
+                        ).show();
+                        
+                        // Send verificationId to your backend
+                        sendToBackend(verificationId, identityId);
+                    } else {
+                        String verificationId = data.getStringExtra(MetamapSdk.ARG_VERIFICATION_ID);
+                        Toast.makeText(
+                                this,
+                                "Verification cancelled. ID: " + verificationId,
+                                Toast.LENGTH_SHORT
+                        ).show();
+                    }
+                });
+
+        Button verifyButton = findViewById(R.id.verifyButton);
+        verifyButton.setOnClickListener(v -> startVerification());
+    }
+
+    private void startVerification() {
+        MetamapSdk.INSTANCE.startFlow(
+                this,
+                "YOUR_CLIENT_ID",
+                "YOUR_FLOW_ID",
+                new Metadata.Builder()
+                        .additionalData("userId", "user_12345")
+                        .build()
+        );
+    }
+    
+    private void sendToBackend(String verificationId, String identityId) {
+        // TODO: Send verification result to your backend
+        // Your backend should verify the result with MetaMap's API
+    }
+}
+```
+
+<Warning>
+**Security Note**: Always verify the verification result on your backend server by calling MetaMap's API. Never trust client-side results alone for security-critical operations.
+</Warning>
+
+## Option 2: MetamapButton
+
+For a quicker integration, use the pre-built `MetamapButton` component.
+
+### Step 1: Add Button to Layout
+
+```xml res/layout/activity_main.xml
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:gravity="center"
+    android:orientation="vertical"
+    android:padding="16dp">
+
+    <com.metamap.metamap_sdk.MetamapButton
+        android:id="@+id/metamapButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
+</LinearLayout>
+```
+
+### Step 2: Configure Button in Activity
+
+```java MetamapButtonActivity.java
+package com.yourcompany.yourapp;
+
+import android.os.Bundle;
+import androidx.appcompat.app.AppCompatActivity;
+
+import com.metamap.metamap_sdk.MetamapButton;
+
+public class MetamapButtonActivity extends AppCompatActivity {
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+
+        MetamapButton button = findViewById(R.id.metamapButton);
+        button.setParams(this, "YOUR_CLIENT_ID", "YOUR_FLOW_ID");
+    }
+}
+```
+
+### Step 3: Handle Results (Legacy onActivityResult)
+
+If you're using the legacy `onActivityResult` approach:
+
+```java MetamapButtonActivity.java
+package com.yourcompany.yourapp;
+
+import android.app.Activity;
+import android.content.Intent;
+import android.os.Bundle;
+import android.widget.Toast;
+import androidx.appcompat.app.AppCompatActivity;
+
+import com.metamap.metamap_sdk.MetamapButton;
+import com.metamap.metamap_sdk.MetamapSdk;
+
+public class MetamapButtonActivity extends AppCompatActivity {
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+
+        MetamapButton button = findViewById(R.id.metamapButton);
+        button.setParams(this, "YOUR_CLIENT_ID", "YOUR_FLOW_ID");
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (requestCode == MetamapSdk.DEFAULT_REQUEST_CODE) {
+            if (resultCode == Activity.RESULT_OK && data != null) {
+                String verificationId = data.getStringExtra(MetamapSdk.ARG_VERIFICATION_ID);
+                String identityId = data.getStringExtra(MetamapSdk.ARG_IDENTITY_ID);
+                
+                Toast.makeText(
+                        this,
+                        "Verification success! " +
+                                "VerificationId: " + verificationId +
+                                " IdentityId: " + identityId,
+                        Toast.LENGTH_LONG
+                ).show();
+            } else {
+                if (data != null) {
+                    String verificationId = data.getStringExtra(MetamapSdk.ARG_VERIFICATION_ID);
+                    Toast.makeText(
+                            this,
+                            "Verification cancelled! ID: " + verificationId,
+                            Toast.LENGTH_SHORT
+                    ).show();
+                } else {
+                    Toast.makeText(
+                            this,
+                            "Verification cancelled!",
+                            Toast.LENGTH_SHORT
+                    ).show();
+                }
+            }
+        } else {
+            super.onActivityResult(requestCode, resultCode, data);
+        }
+    }
+}
+```
+
+### Step 4: Handle Results (Activity Result API)
+
+For the modern approach using Activity Result API:
+
+```java MetamapButtonActivity.java
+package com.yourcompany.yourapp;
+
+import android.app.Activity;
+import android.content.Intent;
+import android.os.Bundle;
+import android.widget.Toast;
+
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
+import androidx.appcompat.app.AppCompatActivity;
+
+import com.metamap.metamap_sdk.MetamapButton;
+import com.metamap.metamap_sdk.MetamapSdk;
+
+public class MetamapButtonActivity extends AppCompatActivity {
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+
+        ActivityResultLauncher<Intent> resultLauncher = registerForActivityResult(
+                new ActivityResultContracts.StartActivityForResult(),
+                result -> {
+                    Intent data = result.getData();
+                    if (data == null) {
+                        Toast.makeText(this, "Verification cancelled", Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+                    
+                    if (result.getResultCode() == Activity.RESULT_OK) {
+                        String verificationId = data.getStringExtra(MetamapSdk.ARG_VERIFICATION_ID);
+                        String identityId = data.getStringExtra(MetamapSdk.ARG_IDENTITY_ID);
+                        
+                        Toast.makeText(
+                                this,
+                                "Verification success! " +
+                                        "VerificationId: " + verificationId +
+                                        " IdentityId: " + identityId,
+                                Toast.LENGTH_LONG
+                        ).show();
+                    } else {
+                        String verificationId = data.getStringExtra(MetamapSdk.ARG_VERIFICATION_ID);
+                        Toast.makeText(
+                                this,
+                                "Verification cancelled! " +
+                                        "VerificationId: " + verificationId,
+                                Toast.LENGTH_SHORT
+                        ).show();
+                    }
+                });
+
+        MetamapButton button = findViewById(R.id.metamapButton);
+        button.setParams(resultLauncher, this, "YOUR_CLIENT_ID", "YOUR_FLOW_ID");
+    }
+}
+```
+
+## Adding Metadata
+
+You can pass custom metadata through the verification flow:
+
+```java
+Metadata metadata = new Metadata.Builder()
+        .additionalData("userId", "user_12345")
+        .additionalData("accountType", "premium")
+        .additionalData("sessionId", "session_xyz")
+        .build();
+
+// With programmatic method
+MetamapSdk.INSTANCE.startFlow(this, "YOUR_CLIENT_ID", "YOUR_FLOW_ID", metadata);
+
+// With MetamapButton
+button.setParams(this, "YOUR_CLIENT_ID", "YOUR_FLOW_ID", metadata);
+```
+
+<Info>
+Metadata is useful for:
+- Associating verifications with user accounts
+- Tracking verification sessions
+- Passing context to your backend
+- Segmenting verification analytics
+</Info>
+
+## Testing Your Integration
+
+<Steps>
+  <Step title="Replace Credentials">
+    Replace `YOUR_CLIENT_ID` and `YOUR_FLOW_ID` with your actual credentials from the MetaMap dashboard
+  </Step>
+  
+  <Step title="Run Your App">
+    Build and run your app on a physical device or emulator
+  </Step>
+  
+  <Step title="Start Verification">
+    Tap the verification button to launch the flow
+  </Step>
+  
+  <Step title="Complete Flow">
+    Follow the on-screen instructions to complete a test verification
+  </Step>
+  
+  <Step title="Check Results">
+    Verify that you receive the verification ID and identity ID in your callback
+  </Step>
+</Steps>
+
+## Understanding the Response
+
+When the verification completes, you'll receive:
+
+- **verificationId**: Unique identifier for this verification attempt
+- **identityId**: Unique identifier for the user's identity
+
+```java
+String verificationId = data.getStringExtra(MetamapSdk.ARG_VERIFICATION_ID);
+String identityId = data.getStringExtra(MetamapSdk.ARG_IDENTITY_ID);
+```
+
+<Warning>
+The result code indicates user action, not verification status:
+- `RESULT_OK`: User completed the flow
+- `RESULT_CANCELED`: User cancelled the flow
+
+To check actual verification status, query MetaMap's API using the verificationId on your backend.
+</Warning>
+
+## Backend Verification
+
+After receiving the verification ID, verify it on your backend:
+
+```java
+private void verifyOnBackend(String verificationId, String identityId) {
+    // Send to your backend API
+    // Your backend should call MetaMap's verification API:
+    // GET https://api.metamap.com/v2/verifications/{verificationId}
+    // with your API key to get the actual verification status
+}
+```
+
+## Common Issues
+
+### Camera Permission Denied
+
+The SDK handles camera permissions automatically. If users deny permission, the flow will be cancelled.
+
+### Invalid Credentials
+
+If you see an error about invalid credentials:
+1. Verify your Client ID and Flow ID are correct
+2. Check that your MetaMap account is active
+3. Ensure the Flow ID corresponds to an active flow in your dashboard
+
+### Integration Not Working
+
+If the verification flow doesn't start:
+1. Check that you've completed all [installation](/installation) steps
+2. Verify dependencies are synced correctly
+3. Check Logcat for error messages
+4. Ensure you're testing on API 21+ device
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Customization" icon="palette" href="/customization/ui-colors">
+    Customize colors, fonts, and language
+  </Card>
+  
+  <Card title="Advanced Features" icon="gear" href="/advanced/smart-capture">
+    Explore smart capture, encryption, and more
+  </Card>
+  
+  <Card title="API Reference" icon="code" href="/api/metamap-sdk">
+    Complete API documentation
+  </Card>
+  
+  <Card title="Integration Guides" icon="book" href="/guides/basic-integration">
+    Learn about different integration methods
+  </Card>
+</CardGroup>

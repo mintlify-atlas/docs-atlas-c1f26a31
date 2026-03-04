@@ -1,0 +1,146 @@
+---
+title: "Custom Fonts"
+description: "Configure custom fonts for the MetaMap SDK to match your app's typography"
+---
+
+The MetaMap SDK supports custom font configuration, allowing you to provide your own font files for both regular and bold text styles.
+
+## Overview
+
+You can customize fonts by providing TrueType Font (`.ttf`) files for:
+
+- **Regular Font** - Used for normal text throughout the SDK
+- **Bold Font** - Used for headings, buttons, and emphasized text
+
+## Setup
+
+<Steps>
+  <Step title="Add Font Files to Assets">
+    Place your custom font files in the `app/src/main/assets/` directory:
+    
+    ```
+    app/src/main/assets/
+    ├── comic_neue.ttf
+    └── comic_neue_bold.ttf
+    ```
+    
+    <Note>
+      Font files must be in TrueType Font (`.ttf`) format and located in the assets directory.
+    </Note>
+  </Step>
+
+  <Step title="Create FontConfig">
+    Create a `FontConfig` object with the paths to your font files:
+    
+    ```java
+    FontConfig fontConfig = new FontConfig(
+            "comic_neue.ttf",
+            "comic_neue_bold.ttf"
+    );
+    ```
+    
+    The first parameter is the regular font, and the second is the bold font.
+  </Step>
+
+  <Step title="Apply to UIConfig">
+    Pass the `FontConfig` to the `UIConfig.Builder`:
+    
+    ```java
+    UIConfig uiConfig = new UIConfig.Builder()
+            .fontConfig(fontConfig)
+            .build();
+    ```
+  </Step>
+
+  <Step title="Initialize MetaMap">
+    Pass the configuration through `Metadata` when setting up MetaMap:
+    
+    ```java
+    Metadata metadata = new Metadata.Builder()
+            .uiConfig(uiConfig)
+            .build();
+    
+    btn.setParams(this, "YOUR_CLIENT_ID", "YOUR_FLOW_ID", metadata);
+    ```
+  </Step>
+</Steps>
+
+## Complete Example
+
+```java
+package com.example.yourapp;
+
+import android.os.Bundle;
+import androidx.appcompat.app.AppCompatActivity;
+import com.metamap.metamap_sdk.Metadata;
+import com.metamap.metamap_sdk.MetamapButton;
+import com.metamap.metamap_sdk.metadata.FontConfig;
+import com.metamap.metamap_sdk.metadata.UIConfig;
+
+public class FontCustomizationActivity extends AppCompatActivity {
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_metamap_button);
+
+        MetamapButton btn = findViewById(R.id.metamapButton);
+
+        FontConfig fontConfig = new FontConfig(
+                "comic_neue.ttf",
+                "comic_neue_bold.ttf"
+        );
+        
+        UIConfig uiConfig = new UIConfig.Builder()
+                .fontConfig(fontConfig)
+                .build();
+        
+        Metadata metadata = new Metadata.Builder()
+                .uiConfig(uiConfig)
+                .build();
+        
+        btn.setParams(this, "YOUR_CLIENT_ID", "YOUR_FLOW_ID", metadata);
+    }
+}
+```
+
+## Combining with Other Customizations
+
+You can combine font customization with color customization:
+
+```java
+import androidx.core.content.ContextCompat;
+
+// Load colors
+int accentColor = ContextCompat.getColor(this, R.color.colorAccent);
+
+// Create font config
+FontConfig fontConfig = new FontConfig(
+        "my_font_regular.ttf",
+        "my_font_bold.ttf"
+);
+
+// Combine in UIConfig
+UIConfig uiConfig = new UIConfig.Builder()
+        .fontConfig(fontConfig)
+        .accentColor(accentColor)
+        .build();
+
+Metadata metadata = new Metadata.Builder()
+        .uiConfig(uiConfig)
+        .build();
+```
+
+## FontConfig Parameters
+
+<ParamField path="regularFont" type="String" required>
+  Path to the regular font file (`.ttf`) in the assets directory. Used for normal text throughout the SDK.
+</ParamField>
+
+<ParamField path="boldFont" type="String" required>
+  Path to the bold font file (`.ttf`) in the assets directory. Used for headings, buttons, and emphasized text.
+</ParamField>
+
+<Note>
+  Make sure your font files support all the characters and languages you expect to use in the SDK. Test thoroughly to ensure proper rendering across different screens.
+</Note>

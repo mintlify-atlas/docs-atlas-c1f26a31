@@ -1,0 +1,222 @@
+---
+title: MetaMap Button Component
+description: Use the pre-built MetamapButton UI component for quick integration
+---
+
+The `MetamapButton` is a pre-built UI component that handles the verification flow launch automatically. It provides a consistent user experience with minimal code.
+
+## Overview
+
+Instead of manually calling `startFlow()`, you can use the `MetamapButton` component which encapsulates both the UI and the flow launching logic. This is the quickest way to integrate MetaMap into your app.
+
+<Steps>
+
+### Add MetamapButton to Your Layout
+
+Add the `MetamapButton` component directly in your XML layout:
+
+```xml activity_metamap_button.xml
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:gravity="center">
+
+    <com.metamap.metamap_sdk.MetamapButton
+        android:id="@+id/metamapButton"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="16dp"
+        app:text="YOUR CUSTOM TEXT"/>
+
+</LinearLayout>
+```
+
+### Configure the Button
+
+In your Activity, configure the button with your MetaMap credentials:
+
+```kotlin MetamapButtonActivity.kt
+import com.metamap.metamap_sdk.MetamapButton
+
+class MetamapButtonActivity : AppCompatActivity() {
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setContentView(R.layout.activity_metamap_button)
+
+        val btn = findViewById<MetamapButton>(R.id.metamapButton)
+        btn.setParams(this, "YOUR_CLIENT_ID", "YOUR_FLOW_ID")
+    }
+}
+```
+
+```java MetamapButtonActivity.java
+import com.metamap.metamap_sdk.MetamapButton;
+
+public class MetamapButtonActivity extends AppCompatActivity {
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_metamap_button);
+
+        MetamapButton btn = findViewById(R.id.metamapButton);
+        btn.setParams(this, "YOUR_CLIENT_ID", "YOUR_FLOW_ID");
+    }
+}
+```
+
+### Replace Configuration Values
+
+Update the placeholder values:
+
+- `YOUR_CLIENT_ID`: Your MetaMap client identifier
+- `YOUR_FLOW_ID`: The ID of the verification flow
+- `YOUR CUSTOM TEXT`: The button text to display
+
+</Steps>
+
+## Customization Options
+
+### Button Text
+
+Customize the button text using the `app:text` attribute:
+
+```xml
+<com.metamap.metamap_sdk.MetamapButton
+    android:id="@+id/metamapButton"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    app:text="Verify Your Identity"/>
+```
+
+### With Metadata
+
+Pass custom metadata using the extended `setParams()` method:
+
+```kotlin
+import com.metamap.metamap_sdk.Metadata
+import com.metamap.metamap_sdk.MetamapButton
+
+val btn = findViewById<MetamapButton>(R.id.metamapButton)
+
+btn.setParams(
+    this,
+    "YOUR_CLIENT_ID",
+    "YOUR_FLOW_ID",
+    Metadata.Builder()
+        .additionalData("userId", "qwfguweo")
+        .additionalData("type", 2)
+        .build()
+)
+```
+
+```java
+import com.metamap.metamap_sdk.Metadata;
+import com.metamap.metamap_sdk.MetamapButton;
+
+MetamapButton btn = findViewById(R.id.metamapButton);
+
+btn.setParams(
+    this,
+    "YOUR_CLIENT_ID",
+    "YOUR_FLOW_ID",
+    new Metadata.Builder()
+        .additionalData("userId", "qwfguweo")
+        .additionalData("type", 2)
+        .build()
+);
+```
+
+### With Activity Result API
+
+For modern Android development, you can use the Activity Result API:
+
+```kotlin
+import androidx.activity.result.ActivityResultLauncher
+import androidx.activity.result.contract.ActivityResultContracts
+import com.metamap.metamap_sdk.MetamapButton
+
+private val resultLauncher: ActivityResultLauncher<Intent> = registerForActivityResult(
+    ActivityResultContracts.StartActivityForResult()
+) { result ->
+    // Handle result
+}
+
+val btn = findViewById<MetamapButton>(R.id.metamapButton)
+btn.setParams(resultLauncher, this, "YOUR_CLIENT_ID", "YOUR_FLOW_ID")
+```
+
+```java
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
+import com.metamap.metamap_sdk.MetamapButton;
+
+private final ActivityResultLauncher<Intent> resultLauncher = registerForActivityResult(
+    new ActivityResultContracts.StartActivityForResult(),
+    result -> {
+        // Handle result
+    }
+);
+
+MetamapButton btn = findViewById(R.id.metamapButton);
+btn.setParams(resultLauncher, this, "YOUR_CLIENT_ID", "YOUR_FLOW_ID");
+```
+
+<Note>
+Learn more about handling results in the [Result Handling guide](/guides/result-handling).
+</Note>
+
+## Method Overloads
+
+The `setParams()` method has several overloads:
+
+### Basic Configuration
+
+```java
+setParams(Activity activity, String clientId, String flowId)
+```
+
+### With Metadata
+
+```java
+setParams(Activity activity, String clientId, String flowId, Metadata metadata)
+```
+
+### With Activity Result Launcher
+
+```java
+setParams(ActivityResultLauncher<Intent> launcher, Activity activity, String clientId, String flowId)
+```
+
+### With Activity Result Launcher and Metadata
+
+```java
+setParams(ActivityResultLauncher<Intent> launcher, Activity activity, String clientId, String flowId, Metadata metadata)
+```
+
+## Comparison with startFlow()
+
+| Feature | MetamapButton | startFlow() |
+|---------|---------------|-------------|
+| UI Component | Pre-built button | Use your own UI |
+| Setup Complexity | Lower | Higher |
+| Customization | Limited to button styling | Full control |
+| Best For | Quick integration | Custom UX requirements |
+
+<Warning>
+Whether you use `MetamapButton` or `startFlow()`, make sure to handle verification results properly. See the [Result Handling guide](/guides/result-handling) for details.
+</Warning>
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Handle Results" icon="check-circle" href="/guides/result-handling">
+    Learn how to capture verification results
+  </Card>
+  <Card title="Custom Metadata" icon="database" href="/guides/metadata">
+    Pass additional data with verification requests
+  </Card>
+</CardGroup>

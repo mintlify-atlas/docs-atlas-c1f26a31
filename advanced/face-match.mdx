@@ -1,0 +1,114 @@
+---
+title: "Face Match"
+description: "Enable biometric verification by matching faces with existing identity records"
+---
+
+Face Match allows you to verify users by comparing their facial biometrics against previously captured identity data. This feature is useful for re-verification flows and ongoing authentication.
+
+## Overview
+
+When Face Match is enabled, the SDK will attempt to match the user's face against a previously stored identity using the `identityId` parameter. This enables:
+
+- Re-verification of existing users
+- Step-up authentication flows
+- Biometric login experiences
+- Ongoing compliance checks
+
+## Implementation
+
+<Steps>
+  <Step title="Import Required Classes">
+    First, import the necessary MetaMap SDK classes:
+
+    ```java
+    import com.metamap.metamap_sdk.Metadata;
+    import com.metamap.metamap_sdk.MetamapButton;
+    ```
+  </Step>
+
+  <Step title="Configure Face Match with Identity ID">
+    Set the `identityId` parameter in the Metadata builder to enable face matching:
+
+    ```java
+    MetamapButton btn = findViewById(R.id.metamapButton);
+
+    btn.setParams(
+        this,
+        "YOUR_CLIENT_ID",
+        "YOUR_FLOW_ID",
+        new Metadata.Builder()
+            .identityId("USER_IDENTITY_ID")
+            .build()
+    );
+    ```
+  </Step>
+
+  <Step title="Handle Verification Results">
+    The SDK will return the verification results through the standard callback mechanism. The face match score and result will be included in the verification response.
+  </Step>
+</Steps>
+
+## Parameters
+
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `identityId` | String | Yes | The unique identifier of the previously verified identity to match against |
+
+## Use Cases
+
+### Re-verification Flow
+
+Use Face Match when a user needs to re-verify their identity:
+
+```java
+// Retrieve the user's identity ID from your database
+String userIdentityId = getUserIdentityIdFromDatabase();
+
+btn.setParams(
+    this,
+    "YOUR_CLIENT_ID",
+    "YOUR_FLOW_ID",
+    new Metadata.Builder()
+        .identityId(userIdentityId)
+        .build()
+);
+```
+
+### Step-up Authentication
+
+Implement high-security actions that require biometric confirmation:
+
+```java
+// Before allowing sensitive operations
+String currentUserIdentityId = getCurrentUser().getIdentityId();
+
+btn.setParams(
+    this,
+    "YOUR_CLIENT_ID",
+    "YOUR_FLOW_ID",
+    new Metadata.Builder()
+        .identityId(currentUserIdentityId)
+        .build()
+);
+```
+
+<Note>
+  The identity ID must correspond to a previously verified identity in your MetaMap account. If the identity ID doesn't exist, the verification will fail.
+</Note>
+
+<Warning>
+  Store identity IDs securely and ensure they are properly associated with your user records. Never expose identity IDs in client-side code or logs.
+</Warning>
+
+## Best Practices
+
+1. **Secure Storage**: Store identity IDs securely on your backend and retrieve them only when needed
+2. **Error Handling**: Implement proper error handling for cases where face matching fails
+3. **User Experience**: Inform users that they will be asked to verify their face before starting the flow
+4. **Fallback Options**: Provide alternative verification methods if face matching fails
+
+## Next Steps
+
+- Learn about [Smart Capture](/advanced/smart-capture) for improved document detection
+- Configure [Encryption](/advanced/encryption) for enhanced data security
+- Implement [Cooldown](/advanced/cooldown) to prevent verification abuse

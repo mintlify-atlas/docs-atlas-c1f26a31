@@ -1,0 +1,168 @@
+---
+title: "Smart Capture"
+description: "ML-powered document detection for improved capture accuracy"
+---
+
+Smart Capture uses machine learning to automatically detect and capture documents with optimal quality. This feature significantly improves the user experience by reducing manual capture attempts and ensuring high-quality document images.
+
+## Overview
+
+Smart Capture leverages on-device ML models to:
+
+- Automatically detect document boundaries
+- Assess image quality in real-time
+- Guide users to optimal capture positions
+- Reduce blurry or poorly lit captures
+- Automatically trigger capture when conditions are ideal
+
+<Info>
+  Once the Smart Capture dependency is added, it will automatically be enabled by default.
+</Info>
+
+## Implementation
+
+<Steps>
+  <Step title="Add Smart Capture Dependency">
+    Add the Smart Capture dependency to your app's `build.gradle` file:
+
+    ```gradle
+    dependencies {
+        implementation 'com.metamap:smart-capture:x.x.x'
+    }
+    ```
+
+    <Note>
+      Check the [MetaMap releases page](https://github.com/GetMetaMap/metamap-android-sdk) for the latest Smart Capture version.
+    </Note>
+  </Step>
+
+  <Step title="Configure Your Activity">
+    Import the necessary classes:
+
+    ```java
+    import com.metamap.metamap_sdk.MetamapButton;
+    import com.metamap.metamap_sdk.MetamapSdk;
+    ```
+
+    Set up the MetaMap button as usual:
+
+    ```java
+    MetamapButton btn = findViewById(R.id.metamapButton);
+    btn.setParams(this, "YOUR_CLIENT_ID", "YOUR_FLOW_ID");
+    ```
+  </Step>
+
+  <Step title="Enable or Disable Smart Capture (Optional)">
+    If you need to manually control Smart Capture, use the following methods:
+
+    ```java
+    // Enable Smart Capture
+    MetamapSdk.INSTANCE.enableSmartCapture();
+
+    // Disable Smart Capture
+    MetamapSdk.INSTANCE.disableSmartCapture();
+    ```
+  </Step>
+</Steps>
+
+## Manual Control
+
+While Smart Capture is enabled by default, you may want to control it programmatically based on device capabilities or user preferences.
+
+### Enable Smart Capture
+
+```java
+public class SmartCaptureActivity extends AppCompatActivity {
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_metamap_button);
+
+        // Enable Smart Capture
+        MetamapSdk.INSTANCE.enableSmartCapture();
+
+        MetamapButton btn = findViewById(R.id.metamapButton);
+        btn.setParams(this, "YOUR_CLIENT_ID", "YOUR_FLOW_ID");
+    }
+}
+```
+
+### Disable Smart Capture
+
+```java
+public class ManualCaptureActivity extends AppCompatActivity {
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_metamap_button);
+
+        // Disable Smart Capture for manual control
+        MetamapSdk.INSTANCE.disableSmartCapture();
+
+        MetamapButton btn = findViewById(R.id.metamapButton);
+        btn.setParams(this, "YOUR_CLIENT_ID", "YOUR_FLOW_ID");
+    }
+}
+```
+
+## Use Cases
+
+### Automatic Mode (Default)
+
+Best for most applications where you want the optimal user experience:
+
+```java
+MetamapButton btn = findViewById(R.id.metamapButton);
+btn.setParams(this, "YOUR_CLIENT_ID", "YOUR_FLOW_ID");
+// Smart Capture is enabled by default
+```
+
+### Device-Based Configuration
+
+Disable Smart Capture on older devices that may not support ML models efficiently:
+
+```java
+if (isLowEndDevice()) {
+    MetamapSdk.INSTANCE.disableSmartCapture();
+} else {
+    MetamapSdk.INSTANCE.enableSmartCapture();
+}
+```
+
+### User Preference
+
+Allow users to choose between automatic and manual capture:
+
+```java
+boolean userPrefersManualCapture = getUserPreference("manual_capture");
+
+if (userPrefersManualCapture) {
+    MetamapSdk.INSTANCE.disableSmartCapture();
+} else {
+    MetamapSdk.INSTANCE.enableSmartCapture();
+}
+```
+
+## Benefits
+
+- **Improved Quality**: Captures are taken only when quality conditions are met
+- **Better UX**: Reduces user frustration from rejected documents
+- **Faster Processing**: High-quality images lead to faster verification times
+- **Higher Success Rates**: Reduces verification failures due to poor image quality
+
+<Warning>
+  Disabling Smart Capture may result in lower quality document captures and increased verification failures. Only disable it if you have a specific use case that requires manual control.
+</Warning>
+
+## Best Practices
+
+1. **Keep It Enabled**: Leave Smart Capture enabled for the best user experience
+2. **Test on Target Devices**: If disabling on low-end devices, test the threshold carefully
+3. **Provide Guidance**: When Smart Capture is disabled, provide clear visual guidance to users
+4. **Monitor Quality**: Track document quality metrics when Smart Capture is disabled
+
+## Next Steps
+
+- Configure [Face Match](/advanced/face-match) for biometric verification
+- Set up [Encryption](/advanced/encryption) for data security
+- Implement [Cooldown](/advanced/cooldown) to prevent abuse

@@ -1,0 +1,223 @@
+---
+title: "Encryption Configuration"
+description: "Configure end-to-end encryption for sensitive verification data"
+---
+
+Encryption Configuration allows you to secure verification data with end-to-end encryption using your own encryption configuration. This ensures that sensitive user data is encrypted before transmission and can only be decrypted by your systems.
+
+## Overview
+
+When you configure encryption, the MetaMap SDK will:
+
+- Encrypt sensitive verification data before transmission
+- Use your encryption configuration ID to apply the correct encryption settings
+- Ensure data remains encrypted in transit and at rest
+- Allow only your backend systems to decrypt the data
+
+<Info>
+  You must set up an encryption configuration in your MetaMap dashboard before using this feature.
+</Info>
+
+## Implementation
+
+<Steps>
+  <Step title="Create Encryption Configuration">
+    Before implementing encryption in your app, create an encryption configuration in your MetaMap dashboard:
+
+    1. Log in to your MetaMap dashboard
+    2. Navigate to Settings > Encryption
+    3. Create a new encryption configuration
+    4. Copy the Encryption Configuration ID
+  </Step>
+
+  <Step title="Import Required Classes">
+    Import the necessary MetaMap SDK classes:
+
+    ```java
+    import com.metamap.metamap_sdk.MetamapButton;
+    import com.metamap.metamap_sdk.MetamapSdk;
+    ```
+  </Step>
+
+  <Step title="Configure Encryption">
+    Pass the encryption configuration ID as the last parameter in `setParams()`:
+
+    ```java
+    MetamapButton btn = findViewById(R.id.metamapButton);
+
+    btn.setParams(
+        this,
+        "YOUR_CLIENT_ID",
+        "YOUR_FLOW_ID",
+        null,
+        MetamapSdk.DEFAULT_REQUEST_CODE,
+        null,
+        "YOUR_ENCRYPTION_CONFIGURATION_ID"
+    );
+    ```
+  </Step>
+</Steps>
+
+## Parameters
+
+The `setParams()` method accepts the following parameters when configuring encryption:
+
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `context` | Context | Yes | Activity context |
+| `clientId` | String | Yes | Your MetaMap client ID |
+| `flowId` | String | Yes | Your verification flow ID |
+| `metadata` | Metadata | No | Additional metadata (set to `null` if not used) |
+| `requestCode` | Int | No | Request code for activity result (use `MetamapSdk.DEFAULT_REQUEST_CODE`) |
+| `language` | String | No | Language code (set to `null` for default) |
+| `encryptionConfigurationId` | String | Yes | Your encryption configuration ID |
+
+## Complete Example
+
+```java
+package com.example.app;
+
+import android.os.Bundle;
+import androidx.appcompat.app.AppCompatActivity;
+import com.metamap.metamap_sdk.MetamapButton;
+import com.metamap.metamap_sdk.MetamapSdk;
+
+public class EncryptionConfigActivity extends AppCompatActivity {
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_metamap_button);
+
+        MetamapButton btn = findViewById(R.id.metamapButton);
+
+        btn.setParams(
+            this,
+            "YOUR_CLIENT_ID",
+            "YOUR_FLOW_ID",
+            null,
+            MetamapSdk.DEFAULT_REQUEST_CODE,
+            null,
+            "YOUR_ENCRYPTION_CONFIGURATION_ID"
+        );
+    }
+}
+```
+
+## Combining with Metadata
+
+You can combine encryption with other features like metadata:
+
+```java
+import com.metamap.metamap_sdk.Metadata;
+
+MetamapButton btn = findViewById(R.id.metamapButton);
+
+Metadata metadata = new Metadata.Builder()
+    .identityId("USER_IDENTITY_ID")
+    .fixedLanguage("en")
+    .build();
+
+btn.setParams(
+    this,
+    "YOUR_CLIENT_ID",
+    "YOUR_FLOW_ID",
+    metadata,
+    MetamapSdk.DEFAULT_REQUEST_CODE,
+    null,
+    "YOUR_ENCRYPTION_CONFIGURATION_ID"
+);
+```
+
+## Use Cases
+
+### Healthcare Applications
+
+Protect sensitive patient data during identity verification:
+
+```java
+String encryptionId = getHealthcareEncryptionConfig();
+
+btn.setParams(
+    this,
+    clientId,
+    flowId,
+    null,
+    MetamapSdk.DEFAULT_REQUEST_CODE,
+    null,
+    encryptionId
+);
+```
+
+### Financial Services
+
+Comply with financial data protection requirements:
+
+```java
+String financialEncryptionId = "fin_encryption_config_123";
+
+btn.setParams(
+    this,
+    clientId,
+    flowId,
+    null,
+    MetamapSdk.DEFAULT_REQUEST_CODE,
+    null,
+    financialEncryptionId
+);
+```
+
+### Multi-Region Deployments
+
+Use different encryption configurations for different regions:
+
+```java
+String encryptionId;
+if (userRegion.equals("EU")) {
+    encryptionId = "eu_encryption_config_123";
+} else if (userRegion.equals("US")) {
+    encryptionId = "us_encryption_config_456";
+} else {
+    encryptionId = "default_encryption_config_789";
+}
+
+btn.setParams(
+    this,
+    clientId,
+    flowId,
+    null,
+    MetamapSdk.DEFAULT_REQUEST_CODE,
+    null,
+    encryptionId
+);
+```
+
+<Warning>
+  Keep your encryption configuration IDs secure. Do not hardcode them in client-side code if they contain sensitive information. Consider retrieving them from your backend.
+</Warning>
+
+<Note>
+  Encryption configuration must be set up in your MetaMap dashboard before use. Invalid encryption configuration IDs will cause verification to fail.
+</Note>
+
+## Best Practices
+
+1. **Secure Storage**: Store encryption configuration IDs securely, preferably on your backend
+2. **Configuration Management**: Use different configurations for development and production
+3. **Key Rotation**: Regularly rotate encryption keys through the MetaMap dashboard
+4. **Compliance**: Ensure your encryption configuration meets regulatory requirements
+5. **Testing**: Test encryption thoroughly in a development environment before deploying
+
+## Security Considerations
+
+- Encryption configuration IDs should be treated as sensitive credentials
+- Never commit encryption configuration IDs to version control
+- Use environment variables or secure configuration management
+- Monitor access to encryption configurations in your MetaMap dashboard
+- Implement proper access controls on your backend systems that handle decryption
+
+## Next Steps
+
+- Learn about [Face Match](/advanced/face-match) for biometric verification
+- Configure [Smart Capture](/advanced/smart-capture) for better document quality
+- Implement [Cooldown](/advanced/cooldown) to prevent verification abuse

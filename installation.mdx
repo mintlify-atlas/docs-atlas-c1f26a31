@@ -1,0 +1,213 @@
+---
+title: Installation
+description: Add the MetaMap Android SDK to your Android project
+---
+
+## Prerequisites
+
+Before installing the SDK, ensure you have:
+
+<Steps>
+  <Step title="MetaMap Account">
+    Create an account at [MetaMap Dashboard](https://dashboard.metamap.com) to obtain your credentials
+  </Step>
+  
+  <Step title="Client ID and Flow ID">
+    Get your Client ID and Flow ID from the MetaMap dashboard
+  </Step>
+  
+  <Step title="Android Project">
+    An Android project with minimum SDK version 21 or higher
+  </Step>
+</Steps>
+
+## Add Dependencies
+
+### Step 1: Configure Project-level Gradle
+
+Add the required repositories to your project-level `build.gradle` file:
+
+```groovy build.gradle (Project)
+buildscript {
+    repositories {
+        google()
+        jcenter()
+    }
+    dependencies {
+        classpath 'com.android.tools.build:gradle:4.1.2'
+    }
+}
+
+allprojects {
+    repositories {
+        google()
+        maven { url 'https://jitpack.io' }
+    }
+}
+```
+
+### Step 2: Add SDK to App-level Gradle
+
+Add the MetaMap SDK dependency to your app-level `build.gradle` file:
+
+```groovy build.gradle (Module: app)
+android {
+    compileSdkVersion 31
+    
+    defaultConfig {
+        applicationId "com.yourcompany.yourapp"
+        minSdkVersion 21
+        targetSdkVersion 31
+        versionCode 1
+        versionName "1.0"
+    }
+    
+    compileOptions {
+        sourceCompatibility = 1.8
+        targetCompatibility = 1.8
+    }
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    // MetaMap SDK
+    implementation 'com.metamap:android-sdk:3.42.17'
+    
+    // Optional: Smart Capture feature
+    implementation 'com.metamap:android-sdk-smart-capture:0.2.0'
+    
+    // Your other dependencies
+    implementation 'androidx.appcompat:appcompat:1.2.0'
+}
+```
+
+<Note>
+**Version Numbers**: The version numbers shown above are from the source repository. Check the [MetaMap releases page](https://github.com/GetMetaMap/metamap-android-sdk) for the latest version.
+</Note>
+
+### Step 3: Enable Java 8
+
+The SDK requires Java 8 language features. Ensure your `compileOptions` are set:
+
+```groovy build.gradle (Module: app)
+android {
+    compileOptions {
+        sourceCompatibility = 1.8
+        targetCompatibility = 1.8
+    }
+}
+```
+
+For Kotlin projects, also add:
+
+```groovy build.gradle (Module: app)
+kotlinOptions {
+    jvmTarget = "1.8"
+}
+```
+
+## Sync Project
+
+After adding the dependencies, sync your project:
+
+<Steps>
+  <Step title="Click Sync Now">
+    Android Studio will prompt you to sync. Click "Sync Now" in the banner that appears
+  </Step>
+  
+  <Step title="Wait for Sync">
+    Wait for Gradle to download dependencies and complete the sync
+  </Step>
+  
+  <Step title="Verify Installation">
+    Check the Build output to ensure there are no errors
+  </Step>
+</Steps>
+
+## Optional: Add Smart Capture
+
+The Smart Capture module provides advanced document capture capabilities:
+
+```groovy build.gradle (Module: app)
+dependencies {
+    implementation 'com.metamap:android-sdk:3.42.17'
+    implementation 'com.metamap:android-sdk-smart-capture:0.2.0'
+}
+```
+
+<Info>
+**Smart Capture Features**:
+- Automatic edge detection
+- Real-time quality validation
+- Blur detection
+- Glare detection
+- Improved capture experience
+</Info>
+
+## Permissions
+
+The SDK handles permissions automatically, but you should be aware of what's required:
+
+```xml AndroidManifest.xml
+<uses-permission android:name="android.permission.CAMERA" />
+<uses-permission android:name="android.permission.INTERNET" />
+```
+
+<Warning>
+The SDK will request camera permission at runtime when starting the verification flow. Ensure your app's privacy policy mentions camera usage for identity verification.
+</Warning>
+
+## ProGuard Rules
+
+If you're using ProGuard or R8 for code shrinking, the SDK includes its own ProGuard rules. No additional configuration is needed.
+
+However, if you encounter issues, add these rules to your `proguard-rules.pro`:
+
+```proguard proguard-rules.pro
+# MetaMap SDK
+-keep class com.metamap.** { *; }
+-keepclassmembers class com.metamap.** { *; }
+```
+
+## Verify Installation
+
+To verify the SDK is properly installed, add this import to any Activity:
+
+```java MainActivity.java
+import com.metamap.metamap_sdk.MetamapSdk;
+import com.metamap.metamap_sdk.MetamapButton;
+```
+
+If Android Studio resolves the imports without errors, the installation is successful.
+
+## Troubleshooting
+
+### Dependency Resolution Failures
+
+If you encounter dependency resolution errors:
+
+1. Verify that `mavenCentral()` is in your repositories
+2. Check your internet connection
+3. Clear Gradle cache: `./gradlew clean` or File → Invalidate Caches
+4. Ensure you're using a compatible Gradle version (4.1.2 or higher)
+
+### Compilation Errors
+
+If you see compilation errors related to Java version:
+
+1. Verify `sourceCompatibility` and `targetCompatibility` are set to 1.8
+2. Check that your project's JDK is Java 8 or higher
+3. For Kotlin projects, ensure `jvmTarget` is set to "1.8"
+
+### Build Time Increase
+
+The SDK includes native libraries which may increase build time. This is normal and only affects the initial build.
+
+## Next Steps
+
+<Card title="Quickstart" icon="rocket" href="/quickstart">
+  Now that the SDK is installed, let's create your first verification flow
+</Card>

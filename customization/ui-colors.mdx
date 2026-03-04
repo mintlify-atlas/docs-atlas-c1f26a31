@@ -1,0 +1,144 @@
+---
+title: "UI Colors"
+description: "Customize the color scheme of the MetaMap SDK to match your app's branding"
+---
+
+The MetaMap SDK allows you to customize various UI colors including accent, text, background, and line colors to create a cohesive experience with your app's design.
+
+## Overview
+
+You can customize the following color properties:
+
+- **Accent Color** - Primary brand color used for buttons and interactive elements
+- **Title Text Color** - Color for title text in the loading screen
+- **Subtitle Text Color** - Color for subtitle text in the loading screen
+- **Background Color** - Background color for SDK screens
+- **Line Color** - Color for divider lines and borders
+
+## Configuration
+
+Colors are configured using the `UIConfig.Builder` class and passed through the `Metadata` object.
+
+<Steps>
+  <Step title="Define Color Resources">
+    First, define your colors in `res/values/colors.xml`:
+    
+    ```xml
+    <resources>
+        <color name="colorAccent">#FF6B35</color>
+        <color name="titleTextColor">#1A1A1A</color>
+        <color name="subtitleTextColor">#666666</color>
+        <color name="backgroundColor">#FFFFFF</color>
+        <color name="lineColor">#E0E0E0</color>
+    </resources>
+    ```
+  </Step>
+
+  <Step title="Load Colors with ContextCompat">
+    Use `ContextCompat.getColor()` to load your color resources:
+    
+    ```java
+    int accentColor = ContextCompat.getColor(this, R.color.colorAccent);
+    int titleTextColor = ContextCompat.getColor(this, R.color.titleTextColor);
+    int subtitleTextColor = ContextCompat.getColor(this, R.color.subtitleTextColor);
+    int backgroundColor = ContextCompat.getColor(this, R.color.backgroundColor);
+    int lineColor = ContextCompat.getColor(this, R.color.lineColor);
+    ```
+  </Step>
+
+  <Step title="Build UIConfig">
+    Create a `UIConfig` object with your custom colors:
+    
+    ```java
+    UIConfig uiConfig = new UIConfig.Builder()
+            .accentColor(accentColor)
+            .titleTextColor(titleTextColor)
+            .subtitleTextColor(subtitleTextColor)
+            .backgroundColor(backgroundColor)
+            .lineColor(lineColor)
+            .build();
+    ```
+  </Step>
+
+  <Step title="Apply to MetaMap">
+    Pass the `UIConfig` through `Metadata` when initializing MetaMap:
+    
+    ```java
+    Metadata metadata = new Metadata.Builder()
+            .uiConfig(uiConfig)
+            .build();
+    
+    btn.setParams(this, "YOUR_CLIENT_ID", "YOUR_FLOW_ID", metadata);
+    ```
+  </Step>
+</Steps>
+
+## Complete Example
+
+```java
+package com.example.yourapp;
+
+import android.os.Bundle;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.ContextCompat;
+import com.metamap.metamap_sdk.Metadata;
+import com.metamap.metamap_sdk.MetamapButton;
+import com.metamap.metamap_sdk.metadata.UIConfig;
+
+public class ColorsCustomizationActivity extends AppCompatActivity {
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_metamap_button);
+
+        MetamapButton btn = findViewById(R.id.metamapButton);
+
+        int accentColor = ContextCompat.getColor(this, R.color.colorAccent);
+        int titleTextColor = ContextCompat.getColor(this, R.color.titleTextColor);
+        int subtitleTextColor = ContextCompat.getColor(this, R.color.subtitleTextColor);
+        int backgroundColor = ContextCompat.getColor(this, R.color.backgroundColor);
+        int lineColor = ContextCompat.getColor(this, R.color.lineColor);
+
+        UIConfig uiConfig = new UIConfig.Builder()
+                .accentColor(accentColor)
+                .titleTextColor(titleTextColor)
+                .subtitleTextColor(subtitleTextColor)
+                .backgroundColor(backgroundColor)
+                .lineColor(lineColor)
+                .build();
+        
+        Metadata metadata = new Metadata.Builder()
+                .uiConfig(uiConfig)
+                .build();
+        
+        btn.setParams(this, "YOUR_CLIENT_ID", "YOUR_FLOW_ID", metadata);
+    }
+}
+```
+
+## Color Properties
+
+<ParamField path="accentColor" type="int">
+  Primary brand color used for buttons and interactive elements throughout the SDK
+</ParamField>
+
+<ParamField path="titleTextColor" type="int">
+  Color for title text displayed in the loading screen and other primary headings
+</ParamField>
+
+<ParamField path="subtitleTextColor" type="int">
+  Color for subtitle text and secondary content in the loading screen
+</ParamField>
+
+<ParamField path="backgroundColor" type="int">
+  Background color for SDK screens and containers
+</ParamField>
+
+<ParamField path="lineColor" type="int">
+  Color for divider lines, borders, and separator elements
+</ParamField>
+
+<Note>
+  All color values should be Android color integers. Use `ContextCompat.getColor()` to load colors from resources or `Color.parseColor("#RRGGBB")` for hardcoded values.
+</Note>

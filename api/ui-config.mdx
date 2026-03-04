@@ -1,0 +1,152 @@
+---
+title: 'UIConfig'
+description: 'Configure the visual appearance and behavior of the MetaMap SDK verification flow'
+---
+
+## Overview
+
+`UIConfig` allows you to customize the look and feel of the MetaMap verification interface. Use the `UIConfig.Builder` class to create a configuration object with your desired customizations.
+
+## UIConfig.Builder
+
+The builder pattern is used to construct a `UIConfig` instance with custom settings.
+
+### Constructor
+
+```java
+UIConfig.Builder builder = new UIConfig.Builder();
+```
+
+### Methods
+
+<ParamField path="accentColor" type="int">
+  Sets the accent color used throughout the verification flow for interactive elements like buttons and highlights.
+  
+  **Parameter:** Android color resource integer (use `ContextCompat.getColor()` or `Color.parseColor()`)
+</ParamField>
+
+<ParamField path="titleTextColor" type="int">
+  Sets the color for title text displayed in the loading screen and throughout the verification flow.
+  
+  **Parameter:** Android color resource integer
+</ParamField>
+
+<ParamField path="subtitleTextColor" type="int">
+  Sets the color for subtitle and secondary text displayed in the loading screen and throughout the verification flow.
+  
+  **Parameter:** Android color resource integer
+</ParamField>
+
+<ParamField path="backgroundColor" type="int">
+  Sets the background color for screens in the verification flow.
+  
+  **Parameter:** Android color resource integer
+</ParamField>
+
+<ParamField path="lineColor" type="int">
+  Sets the color for divider lines and borders used throughout the interface.
+  
+  **Parameter:** Android color resource integer
+</ParamField>
+
+<ParamField path="fixedLanguage" type="MetamapLanguage">
+  Forces the verification flow to display in a specific language, overriding the device's language settings.
+  
+  **Parameter:** `MetamapLanguage` enum value (e.g., `MetamapLanguage.SPANISH`, `MetamapLanguage.ENGLISH`)
+</ParamField>
+
+<ParamField path="fontConfig" type="FontConfig">
+  Sets custom fonts for the verification interface. See [FontConfig](/api/font-config) for details.
+  
+  **Parameter:** A `FontConfig` instance with your custom font file paths
+</ParamField>
+
+<ParamField path="build" type="UIConfig">
+  Builds and returns the configured `UIConfig` instance.
+  
+  **Returns:** `UIConfig` object ready to be passed to `Metadata.Builder`
+</ParamField>
+
+## Usage Examples
+
+### Customizing Colors
+
+```java
+import androidx.core.content.ContextCompat;
+import com.metamap.metamap_sdk.Metadata;
+import com.metamap.metamap_sdk.MetamapButton;
+import com.metamap.metamap_sdk.metadata.UIConfig;
+
+int accentColor = ContextCompat.getColor(this, R.color.colorAccent);
+int titleTextColor = ContextCompat.getColor(this, R.color.titleTextColor);
+int subtitleTextColor = ContextCompat.getColor(this, R.color.subtitleTextColor);
+int backgroundColor = ContextCompat.getColor(this, R.color.backgroundColor);
+int lineColor = ContextCompat.getColor(this, R.color.lineColor);
+
+UIConfig uiConfig = new UIConfig.Builder()
+        .accentColor(accentColor)
+        .titleTextColor(titleTextColor)
+        .subtitleTextColor(subtitleTextColor)
+        .backgroundColor(backgroundColor)
+        .lineColor(lineColor)
+        .build();
+        
+Metadata metadata = new Metadata.Builder()
+        .uiConfig(uiConfig)
+        .build();
+        
+MetamapButton btn = findViewById(R.id.metamapButton);
+btn.setParams(this, "YOUR_CLIENT_ID", "YOUR_FLOW_ID", metadata);
+```
+
+### Setting a Fixed Language
+
+```java
+import com.metamap.metamap_sdk.Metadata;
+import com.metamap.metamap_sdk.MetamapButton;
+import com.metamap.metamap_sdk.metadata.MetamapLanguage;
+import com.metamap.metamap_sdk.metadata.UIConfig;
+
+UIConfig uiConfig = new UIConfig.Builder()
+        .fixedLanguage(MetamapLanguage.SPANISH)
+        .build();
+        
+Metadata metadata = new Metadata.Builder()
+        .uiConfig(uiConfig)
+        .build();
+        
+MetamapButton btn = findViewById(R.id.metamapButton);
+btn.setParams(this, "YOUR_CLIENT_ID", "YOUR_FLOW_ID", metadata);
+```
+
+### Using Custom Fonts
+
+```java
+import com.metamap.metamap_sdk.Metadata;
+import com.metamap.metamap_sdk.MetamapButton;
+import com.metamap.metamap_sdk.metadata.FontConfig;
+import com.metamap.metamap_sdk.metadata.UIConfig;
+
+FontConfig fontConfig = new FontConfig(
+        "comic_neue.ttf",
+        "comic_neue_bold.ttf"
+);
+
+UIConfig uiConfig = new UIConfig.Builder()
+        .fontConfig(fontConfig)
+        .build();
+        
+Metadata metadata = new Metadata.Builder()
+        .uiConfig(uiConfig)
+        .build();
+        
+MetamapButton btn = findViewById(R.id.metamapButton);
+btn.setParams(this, "YOUR_CLIENT_ID", "YOUR_FLOW_ID", metadata);
+```
+
+## Notes
+
+- All color methods accept Android color resource integers. Use `ContextCompat.getColor()` to resolve color resources or `Color.parseColor()` for hex strings.
+- Color customizations primarily affect the loading screen and UI elements throughout the verification flow.
+- Multiple builder methods can be chained together to customize multiple aspects of the UI.
+- The `UIConfig` object is passed to the SDK via the `Metadata.Builder`.

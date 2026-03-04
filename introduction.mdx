@@ -1,0 +1,124 @@
+---
+title: Introduction
+description: Overview of the MetaMap Android SDK for identity verification
+---
+
+## What is MetaMap Android SDK?
+
+The MetaMap Android SDK enables you to integrate identity verification flows directly into your Android applications. It provides a seamless way to verify user identities, capture documents, perform face matching, and complete compliance workflows.
+
+## Key Capabilities
+
+### Identity Verification Flows
+
+The SDK provides pre-built verification flows that handle the entire identity verification process:
+
+- Document capture and verification (passports, ID cards, driver's licenses)
+- Selfie and liveness checks
+- Face matching against government-issued documents
+- Address verification
+- Custom verification workflows
+
+### Customization Options
+
+Fully customize the verification experience to match your brand:
+
+- **Color Theming**: Customize accent colors, backgrounds, text colors, and UI elements
+- **Language Support**: Set fixed language or allow user selection from multiple languages
+- **Font Customization**: Apply custom fonts throughout the verification flow
+- **Metadata**: Pass custom data through the verification process
+
+### Integration Methods
+
+The SDK offers multiple integration approaches to fit your architecture:
+
+- **Programmatic Launch**: Start verification flows with a method call
+- **UI Button Component**: Use the pre-built `MetamapButton` for quick integration
+- **Activity Result API**: Modern approach using ActivityResultLauncher
+- **onActivityResult**: Legacy callback support for older Android versions
+
+### Advanced Features
+
+<CardGroup cols={2}>
+  <Card title="Smart Capture" icon="camera">
+    Advanced document capture with automatic edge detection and quality validation
+  </Card>
+  
+  <Card title="Encryption" icon="lock">
+    End-to-end encryption for sensitive data transmission
+  </Card>
+  
+  <Card title="Cooldown Periods" icon="clock">
+    Configure waiting periods between verification attempts
+  </Card>
+  
+  <Card title="On-Demand Config" icon="gear">
+    Dynamically configure flows at runtime
+  </Card>
+</CardGroup>
+
+## Requirements
+
+<Note>
+The MetaMap Android SDK requires the following:
+
+- **Minimum SDK Version**: Android 5.0 (API level 21)
+- **Target SDK Version**: Android 12 (API level 31) or higher
+- **Java Version**: Java 8 or higher
+- **Kotlin Support**: Compatible with Kotlin and Java projects
+</Note>
+
+## How It Works
+
+The verification process follows these steps:
+
+<Steps>
+  <Step title="Initialize the SDK">
+    Configure the SDK with your Client ID and Flow ID from the MetaMap dashboard
+  </Step>
+  
+  <Step title="Launch Verification Flow">
+    Start the verification process using one of the integration methods
+  </Step>
+  
+  <Step title="User Completes Verification">
+    The SDK guides users through document capture, selfie, and any required verification steps
+  </Step>
+  
+  <Step title="Receive Results">
+    Get verification results including verification ID and identity ID through callbacks
+  </Step>
+  
+  <Step title="Verify Backend">
+    Use the verification ID to check status and retrieve data via MetaMap's backend API
+  </Step>
+</Steps>
+
+## Use Cases
+
+### Financial Services
+KYC (Know Your Customer) compliance for banking, fintech, and cryptocurrency applications
+
+### Healthcare
+Patient identity verification for telemedicine and healthcare portals
+
+### Sharing Economy
+Verify drivers, hosts, and service providers on marketplace platforms
+
+### Age Verification
+Compliance for age-restricted products and services
+
+### Account Security
+Enhanced account protection with biometric verification
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Installation" icon="download" href="/installation">
+    Add the SDK to your Android project
+  </Card>
+  
+  <Card title="Quickstart" icon="rocket" href="/quickstart">
+    Build your first verification flow in minutes
+  </Card>
+</CardGroup>

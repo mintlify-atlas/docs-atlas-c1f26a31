@@ -1,0 +1,346 @@
+---
+title: Custom Metadata
+description: Pass custom metadata and additional data with verification requests
+---
+
+The MetaMap SDK allows you to pass custom metadata with verification requests. This is useful for tracking user information, linking verifications to your internal systems, or passing additional context.
+
+## Overview
+
+Metadata is passed using the `Metadata.Builder` class, which supports adding key-value pairs of additional data. This data is associated with the verification session and can be retrieved later through the MetaMap API.
+
+## Using Metadata with startFlow()
+
+When using the programmatic `startFlow()` method, pass metadata as the fourth parameter:
+
+<CodeGroup>
+
+```kotlin Kotlin
+import com.metamap.metamap_sdk.Metadata
+import com.metamap.metamap_sdk.MetamapSdk
+
+MetamapSdk.startFlow(
+    this,
+    "YOUR_CLIENT_ID",
+    "YOUR_FLOW_ID",
+    Metadata.Builder()
+        .additionalData("userId", "qwfguweo")
+        .additionalData("type", 2)
+        .build()
+)
+```
+
+```java Java
+import com.metamap.metamap_sdk.Metadata;
+import com.metamap.metamap_sdk.MetamapSdk;
+
+MetamapSdk.INSTANCE.startFlow(
+    this,
+    "YOUR_CLIENT_ID",
+    "YOUR_FLOW_ID",
+    new Metadata.Builder()
+        .additionalData("userId", "qwfguweo")
+        .additionalData("type", 2)
+        .build()
+);
+```
+
+</CodeGroup>
+
+## Using Metadata with MetamapButton
+
+When using the `MetamapButton` component, pass metadata using the extended `setParams()` method:
+
+<CodeGroup>
+
+```kotlin Kotlin
+import com.metamap.metamap_sdk.Metadata
+import com.metamap.metamap_sdk.MetamapButton
+
+val btn = findViewById<MetamapButton>(R.id.metamapButton)
+
+btn.setParams(
+    this,
+    "YOUR_CLIENT_ID",
+    "YOUR_FLOW_ID",
+    Metadata.Builder()
+        .additionalData("userId", "qwfguweo")
+        .additionalData("type", 2)
+        .build()
+)
+```
+
+```java Java
+import com.metamap.metamap_sdk.Metadata;
+import com.metamap.metamap_sdk.MetamapButton;
+
+MetamapButton btn = findViewById(R.id.metamapButton);
+
+btn.setParams(
+    this,
+    "YOUR_CLIENT_ID",
+    "YOUR_FLOW_ID",
+    new Metadata.Builder()
+        .additionalData("userId", "qwfguweo")
+        .additionalData("type", 2)
+        .build()
+);
+```
+
+</CodeGroup>
+
+## With Activity Result API
+
+You can combine metadata with the Activity Result API for modern result handling:
+
+<CodeGroup>
+
+```kotlin Kotlin
+import androidx.activity.result.ActivityResultLauncher
+import androidx.activity.result.contract.ActivityResultContracts
+import com.metamap.metamap_sdk.Metadata
+import com.metamap.metamap_sdk.MetamapButton
+
+private val resultLauncher: ActivityResultLauncher<Intent> = registerForActivityResult(
+    ActivityResultContracts.StartActivityForResult()
+) { result ->
+    // Handle result
+}
+
+val btn = findViewById<MetamapButton>(R.id.metamapButton)
+
+btn.setParams(
+    resultLauncher,
+    this,
+    "YOUR_CLIENT_ID",
+    "YOUR_FLOW_ID",
+    Metadata.Builder()
+        .additionalData("userId", "qwfguweo")
+        .additionalData("accountType", "premium")
+        .build()
+)
+```
+
+```java Java
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
+import com.metamap.metamap_sdk.Metadata;
+import com.metamap.metamap_sdk.MetamapButton;
+
+private final ActivityResultLauncher<Intent> resultLauncher = registerForActivityResult(
+    new ActivityResultContracts.StartActivityForResult(),
+    result -> {
+        // Handle result
+    }
+);
+
+MetamapButton btn = findViewById(R.id.metamapButton);
+
+btn.setParams(
+    resultLauncher,
+    this,
+    "YOUR_CLIENT_ID",
+    "YOUR_FLOW_ID",
+    new Metadata.Builder()
+        .additionalData("userId", "qwfguweo")
+        .additionalData("accountType", "premium")
+        .build()
+);
+```
+
+</CodeGroup>
+
+## Metadata Builder
+
+### Building Metadata
+
+The `Metadata.Builder` class follows the builder pattern:
+
+```kotlin
+val metadata = Metadata.Builder()
+    .additionalData("key1", "value1")
+    .additionalData("key2", 123)
+    .additionalData("key3", true)
+    .build()
+```
+
+```java
+Metadata metadata = new Metadata.Builder()
+    .additionalData("key1", "value1")
+    .additionalData("key2", 123)
+    .additionalData("key3", true)
+    .build();
+```
+
+### Supported Data Types
+
+The `additionalData()` method accepts various data types:
+
+| Type | Example |
+|------|----------|
+| String | `"username"` |
+| Integer | `123` |
+| Long | `123456789L` |
+| Boolean | `true` or `false` |
+| Double | `99.99` |
+| Float | `99.99f` |
+
+## Complete Example
+
+Here's a complete example showing metadata usage with result handling:
+
+<CodeGroup>
+
+```kotlin Kotlin
+import android.app.Activity
+import android.content.Intent
+import android.os.Bundle
+import androidx.appcompat.app.AppCompatActivity
+import com.metamap.metamap_sdk.Metadata
+import com.metamap.metamap_sdk.MetamapButton
+import com.metamap.metamap_sdk.MetamapSdk
+
+class MetadataActivity : AppCompatActivity() {
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setContentView(R.layout.activity_metamap_button)
+
+        val btn = findViewById<MetamapButton>(R.id.metamapButton)
+
+        btn.setParams(
+            this,
+            "YOUR_CLIENT_ID",
+            "YOUR_FLOW_ID",
+            Metadata.Builder()
+                .additionalData("userId", "qwfguweo")
+                .additionalData("type", 2)
+                .build()
+        )
+    }
+}
+```
+
+```java Java
+import android.os.Bundle;
+import androidx.appcompat.app.AppCompatActivity;
+import com.metamap.metamap_sdk.Metadata;
+import com.metamap.metamap_sdk.MetamapButton;
+
+public class MetadataActivity extends AppCompatActivity {
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_metamap_button);
+
+        MetamapButton btn = findViewById(R.id.metamapButton);
+
+        btn.setParams(
+            this,
+            "YOUR_CLIENT_ID",
+            "YOUR_FLOW_ID",
+            new Metadata.Builder()
+                .additionalData("userId", "qwfguweo")
+                .additionalData("type", 2)
+                .build()
+        );
+    }
+}
+```
+
+</CodeGroup>
+
+## Common Use Cases
+
+### User Tracking
+
+Link verifications to your user database:
+
+```kotlin
+Metadata.Builder()
+    .additionalData("userId", user.id)
+    .additionalData("email", user.email)
+    .additionalData("accountCreated", user.createdAt)
+    .build()
+```
+
+### Application Context
+
+Pass application-specific information:
+
+```kotlin
+Metadata.Builder()
+    .additionalData("accountType", "premium")
+    .additionalData("verificationPurpose", "account_upgrade")
+    .additionalData("referralCode", "REF123")
+    .build()
+```
+
+### Session Information
+
+Track session or device details:
+
+```kotlin
+Metadata.Builder()
+    .additionalData("sessionId", sessionManager.currentSessionId)
+    .additionalData("deviceId", deviceInfo.id)
+    .additionalData("appVersion", BuildConfig.VERSION_NAME)
+    .build()
+```
+
+### Transaction Context
+
+Associate verification with a transaction:
+
+```kotlin
+Metadata.Builder()
+    .additionalData("transactionId", "TXN-12345")
+    .additionalData("amount", 500.00)
+    .additionalData("currency", "USD")
+    .build()
+```
+
+## Retrieving Metadata
+
+The metadata you send is stored with the verification session and can be retrieved through:
+
+- MetaMap Dashboard - View metadata in the verification details
+- MetaMap API - Access metadata programmatically via the Verifications API
+- Webhooks - Receive metadata in webhook payloads
+
+<Note>
+Metadata is useful for debugging and tracking verifications in your system. Store identifiers that help you link MetaMap verifications to your internal records.
+</Note>
+
+## Best Practices
+
+<CardGroup cols={2}>
+  <Card title="Use Meaningful Keys" icon="tag">
+    Use clear, descriptive keys for your metadata fields
+  </Card>
+  <Card title="Avoid Sensitive Data" icon="shield">
+    Don't include passwords, tokens, or highly sensitive information
+  </Card>
+  <Card title="Keep It Concise" icon="compress">
+    Only include necessary data to avoid bloat
+  </Card>
+  <Card title="Document Your Schema" icon="book">
+    Maintain documentation of your metadata structure
+  </Card>
+</CardGroup>
+
+<Warning>
+Do not include personally identifiable information (PII) that isn't necessary for verification tracking. Follow your organization's data privacy policies.
+</Warning>
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Handle Results" icon="check-circle" href="/guides/result-handling">
+    Learn how to capture verification results
+  </Card>
+  <Card title="Basic Integration" icon="rocket" href="/guides/basic-integration">
+    Review the basic integration setup
+  </Card>
+</CardGroup>
